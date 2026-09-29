@@ -1,288 +1,254 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>픽셀몬스터 각성 룬 계산기</title></head><body>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#141020"><title>픽셀몬스터 각성 룬 계산기</title></head><body style="margin:0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Silkscreen:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#F2F1F7;
-  --surface:#FFFFFF;
-  --sunken:#E7E5F0;
-  --text:#1B1826;
-  --dim:#6B6683;
-  --faint:#918CA8;
-  --line:#D2CEE1;
-  --rune:#5B41E8;
-  --rune-soft:#E9E4FF;
-  --shadow:rgba(27,24,38,.20);
-
-  --g-common:#7F8595;
-  --g-rare:#4F9B27;
-  --g-epic:#CC3F78;
-  --g-unique:#33313F;
-  --g-legend:#B98305;
-
-  /* 게임 타일 배경색 — 원본 스크린샷에서 뽑은 값 */
-  --sw-common:#C3C3C3;
-  --sw-rare:#7FB67F;
-  --sw-epic:#B2919B;
-  --sw-unique:#464646;
-  --sw-legend:#D7CB9A;
-
-  --f-disp:"Do Hyeon","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --f-mono:"JetBrains Mono","Consolas",ui-monospace,monospace;
-  --f-px:"Silkscreen","JetBrains Mono",monospace;
+  --ground:#141020;
+  --surface:#1d1730;
+  --raised:#271f3f;
+  --edge:#3a2f56;
+  --edge-soft:#2b2242;
+  --ink:#f2edfa;
+  --dim:#9c8fb8;
+  --dimmer:#6f6389;
+  --g-common:#c9c4dd;
+  --g-rare:#6fcf4a;
+  --g-epic:#f273b0;
+  --g-unique:#8f86ff;
+  --g-legend:#ffb45c;
+  --have:#6fcf4a;
+  --warn:#ffb45c;
+  --cyan:#6fd3e0;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#15131F; --surface:#1E1B2C; --sunken:#17151F;
-    --text:#EDEBF5; --dim:#A29DBC; --faint:#7B7597; --line:#332F47;
-    --rune:#9782FF; --rune-soft:#2A2350; --shadow:rgba(0,0,0,.55);
-    --g-common:#9AA0AE; --g-rare:#7ACB4C; --g-epic:#EE7CAE;
-    --g-unique:#A8A2C6; --g-legend:#EFBB34;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#15131F; --surface:#1E1B2C; --sunken:#17151F;
-  --text:#EDEBF5; --dim:#A29DBC; --faint:#7B7597; --line:#332F47;
-  --rune:#9782FF; --rune-soft:#2A2350; --shadow:rgba(0,0,0,.55);
-  --g-common:#9AA0AE; --g-rare:#7ACB4C; --g-epic:#EE7CAE;
-  --g-unique:#A8A2C6; --g-legend:#EFBB34;
-}
-
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 64px}
+body{
+  background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo",sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1320px;margin:0 auto;padding:0 16px 60px}
+.num{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
 
-.masthead{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;padding-bottom:18px;border-bottom:2px solid var(--text)}
-.eyebrow{font-family:var(--f-px);font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;display:block}
-h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(28px,4.4vw,40px);line-height:1.05;margin:2px 0 0;letter-spacing:-.01em;text-wrap:balance}
-.tagline{margin:0 0 4px;color:var(--dim);font-size:12.5px;flex:1 1 240px;min-width:200px}
-.tagline b{color:var(--text);font-weight:600}
+.mast{padding:30px 0 14px}
+.eyebrow{
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dimmer);font-family:var(--mono);font-weight:600;display:block;
+}
+h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0 0;letter-spacing:.01em}
+.flow{margin:6px 0 0;color:var(--dim);font-size:12.5px}
+.flow b{color:var(--ink);font-weight:600}
 
-button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
-.btn{background:var(--surface);border:2px solid var(--text);padding:7px 13px;font-size:12px;font-weight:600;transition:transform .08s ease,box-shadow .08s ease;box-shadow:2px 2px 0 var(--text)}
-.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--text)}
-.btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--text)}
-:where(button,input,a,[tabindex]):focus-visible{outline:2px solid var(--rune);outline-offset:2px}
+/* ---- 결과 ---- */
+.score{
+  margin-top:18px;background:var(--surface);border:2px solid var(--edge);
+  padding:18px 18px 16px;
+  display:grid;grid-template-columns:auto 1fr;gap:6px 26px;align-items:end;
+}
+.total{display:flex;align-items:baseline;gap:8px}
+.total .num{font-size:44px;line-height:1;color:var(--cyan)}
+.total .unit{font-family:"Do Hyeon",sans-serif;font-size:15px;color:var(--dim)}
+.splits{display:flex;gap:22px;flex-wrap:wrap;justify-content:flex-end;padding-bottom:6px}
+.split{text-align:right}
+.split .k{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);font-family:var(--mono);font-weight:600}
+.split .v{display:block;font-family:var(--mono);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.split .v em{font-style:normal;font-family:inherit;font-size:11px;color:var(--dim);margin-left:2px}
+.track{grid-column:1/-1;margin-top:14px;height:16px;background:var(--ground);border:2px solid var(--edge);display:flex;overflow:hidden}
+.track i{display:block;height:100%;background:var(--cyan);transition:width .2s}
+.track.done i{background:repeating-linear-gradient(45deg,var(--have) 0 6px,var(--warn) 6px 12px)}
+.goalline{grid-column:1/-1;margin:9px 0 0;font-size:12.5px;color:var(--dim)}
+.goalline b{font-family:var(--mono);font-weight:600;color:var(--ink)}
+.calcrow{grid-column:1/-1;margin-top:12px;padding-top:12px;border-top:1px solid var(--edge-soft);display:flex;gap:20px;flex-wrap:wrap}
+.calcrow span{font-size:11.5px;color:var(--dimmer);font-family:var(--mono)}
+.calcrow b{color:var(--dim);font-weight:600}
 
-.settings{display:grid;margin-top:22px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border:2px solid var(--text);background:var(--surface)}
-.field{padding:13px 16px;border-right:2px solid var(--text);display:flex;flex-direction:column;gap:7px}
+/* ---- 설정 ---- */
+.setbar{
+  margin-top:12px;background:var(--surface);border:2px solid var(--edge);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+}
+.field{padding:12px 14px;border-right:1px solid var(--edge-soft);display:flex;flex-direction:column;gap:6px;min-width:0}
 .field:last-child{border-right:none}
-.field > label{font-size:11.5px;font-weight:600;color:var(--dim)}
-.field input[type=number]{width:100%;background:var(--sunken);border:1px solid var(--line);padding:7px 10px;font-family:var(--f-mono);font-weight:700;font-size:16px;color:var(--text);font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.field > label{font-size:11px;color:var(--dim);font-weight:500}
+.field input[type=number]{
+  width:100%;background:var(--ground);border:2px solid var(--edge-soft);color:var(--ink);
+  padding:6px 9px;font-family:var(--mono);font-weight:600;font-size:15px;
+  font-variant-numeric:tabular-nums;-moz-appearance:textfield;
+}
 .field input[type=number]::-webkit-outer-spin-button,.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-
-.toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding-top:2px}
-.toggle input{position:absolute;opacity:0;width:0;height:0}
-.box{width:26px;height:26px;flex:none;border:2px solid var(--text);background:var(--sunken);display:grid;place-items:center;font-family:var(--f-px);font-size:13px;color:transparent;line-height:1}
-.toggle input:checked + .box{background:var(--rune);color:#FFFFFF}
-.toggle input:focus-visible + .box{outline:2px solid var(--rune);outline-offset:2px}
-.toggle .lab{font-family:var(--f-mono);font-weight:700;font-size:15px;display:block}
-.toggle .sub{font-size:11px;color:var(--dim);display:block}
-
-.workspace{display:grid;gap:22px;margin-top:22px}
-@media (min-width:1040px){
-  .workspace{grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"inv out" "egg out";align-items:start}
-  #readout{grid-area:out;position:sticky;top:20px}
-  #inventory{grid-area:inv}
-  #eggboard{grid-area:egg}
+.field input::placeholder{color:var(--dimmer);font-family:inherit;font-size:12px;font-weight:400}
+.sw{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.sw input{position:absolute;opacity:0;width:0;height:0}
+.sw .bx{
+  width:22px;height:22px;flex:none;border:2px solid var(--edge);background:var(--ground);
+  display:grid;place-items:center;font-size:12px;color:transparent;line-height:1;
 }
+.sw input:checked + .bx{background:var(--have);border-color:var(--have);color:var(--ground)}
+.sw input:focus-visible + .bx{outline:2px solid var(--cyan);outline-offset:2px}
+.sw .t{font-size:13px;font-weight:600}
+.sw .s{display:block;font-size:10.5px;color:var(--dimmer);font-weight:400}
 
-.panel{border:2px solid var(--text);background:var(--surface)}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:2px solid var(--text);flex-wrap:wrap}
-.panel-head h2{font-family:var(--f-disp);font-weight:400;font-size:18px;margin:0}
-.panel-head .note{font-size:11.5px;color:var(--dim)}
-
-#readout .total{padding:18px 16px 14px;background:var(--rune-soft);border-bottom:2px solid var(--text)}
-.total .num{font-family:var(--f-mono);font-weight:700;font-size:44px;line-height:1;letter-spacing:-.03em;color:var(--rune);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:7px;margin-top:4px}
-.total .num small{font-family:var(--f-disp);font-size:16px;color:var(--text);letter-spacing:0}
-.formula{margin:10px 0 0;font-size:11px;color:var(--dim)}
-.formula code{font-family:var(--f-mono);font-size:10.5px;color:var(--text)}
-.formula sup,footer sup{font-size:8.5px}
-
-.rows{padding:6px 14px 10px}
-.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
-.row:last-child{border-bottom:none}
-.row .k{color:var(--dim)}
-.row .v{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums}
-.row.emph .k{color:var(--text);font-weight:600}
-.row.emph .v{color:var(--rune)}
-
-.tally{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border-top:2px solid var(--text);border-bottom:2px solid var(--text)}
-.tally-c{background:var(--surface);padding:8px 2px;text-align:center}
-.tally-c .dot{width:9px;height:9px;display:inline-block;border:1px solid #141220}
-.tally-c .g{font-size:9.5px;color:var(--dim);display:block;margin-top:2px}
-.tally-c .n{font-family:var(--f-mono);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;display:block}
-.tally-c[data-zero="1"] .n{color:var(--faint)}
-.tally-c[data-zero="1"] .dot{opacity:.3}
-
-.goal{padding:13px 14px;border-bottom:2px solid var(--text)}
-.goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
-.goal-top .k{font-family:var(--f-px);font-size:9px;letter-spacing:.14em;color:var(--faint)}
-.goal-top .v{font-family:var(--f-mono);font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
-.bar{height:14px;border:2px solid var(--text);background:var(--sunken);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--rune);transition:width .25s ease}
-.bar.done i{background:repeating-linear-gradient(45deg,var(--rune) 0 5px,var(--g-legend) 5px 10px)}
-.goal-msg{margin:8px 0 0;font-size:12.5px;line-height:1.5}
-.goal-msg b{font-family:var(--f-mono);font-weight:700;color:var(--text)}
-.need{margin-top:11px;border:1px solid var(--line);background:var(--sunken)}
-.need-head{font-family:var(--f-px);font-size:8.5px;letter-spacing:.1em;color:var(--faint);padding:7px 9px 5px}
-.need-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
-.need-cell{background:var(--sunken);padding:6px 3px;text-align:center}
-.need-cell .g{font-size:9.5px;color:var(--dim);display:block;white-space:nowrap}
-.need-cell .n{font-family:var(--f-mono);font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;display:block}
-
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--text)}
-.stat{background:var(--surface);padding:9px 12px}
-.stat .k{font-family:var(--f-px);font-size:8px;letter-spacing:.1em;color:var(--faint);display:block}
-.stat .v{font-family:var(--f-mono);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;display:block;margin-top:2px}
-.stat .v em{font-style:normal;font-family:var(--f-body);font-size:11px;font-weight:400;color:var(--dim);margin-left:2px}
-
-/* ---- 인벤토리 : 종류(행) × 등급(열) ---- */
-
-/* 종류(행) × 등급(열) 매트릭스 — 아이콘은 고정 크기 */
-.matrix{
-  --icon:46px;
-  display:grid;
-  grid-template-columns:104px repeat(5,minmax(0,1fr)) 82px;
+/* ---- 필터 ---- */
+.controls{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--ground) 78%,rgba(20,16,32,0));
+  padding:16px 0 14px;margin-top:22px;
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
 }
-
-.mh,.mc{border-bottom:1px solid var(--line);min-width:0;display:flex;align-items:center;justify-content:center;padding:5px 6px}
-.mh{
-  position:sticky;top:0;z-index:2;background:var(--sunken);
-  border-bottom:2px solid var(--text);flex-direction:column;gap:0;padding:7px 4px;text-align:center;
+.chip{
+  font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  background:var(--surface);color:var(--dim);border:2px solid var(--edge-soft);
+  padding:6px 11px;display:flex;align-items:center;gap:6px;
 }
-.mh .cg{font-family:var(--f-disp);font-size:13px;line-height:1.15}
-.mh .cr{font-family:var(--f-mono);font-weight:700;font-size:10px;color:var(--dim);font-variant-numeric:tabular-nums}
-.mh-name,.mh-sum{font-family:var(--f-px);font-size:8.5px;letter-spacing:.1em;color:var(--faint)}
-.mh-name{align-items:flex-start;padding-left:12px}
-.mh-sum{align-items:flex-end;padding-right:12px}
-
-.mc-name{
-  flex-direction:column;align-items:flex-start;justify-content:center;gap:0;
-  padding-left:12px;background:var(--surface);
+.chip:hover{border-color:var(--edge);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--raised);border-color:var(--edge);color:var(--ink)}
+.chip .dot{width:8px;height:8px;flex:none}
+.sep{width:1px;height:22px;background:var(--edge-soft);margin:0 2px}
+.search{
+  font:inherit;font-size:13px;background:var(--surface);color:var(--ink);
+  border:2px solid var(--edge-soft);padding:6px 11px;min-width:130px;flex:1 1 130px;max-width:200px;
 }
-.mc-name .tn{font-family:var(--f-disp);font-size:14px;line-height:1.2}
-.mc-name .tc{font-family:var(--f-mono);font-size:10px;color:var(--faint);font-variant-numeric:tabular-nums}
-.mc-name .tbd{font-size:8.5px;color:var(--faint);border:1px dashed var(--line);padding:0 4px;line-height:1.55;margin-top:1px}
-
-.mc-sum{
-  justify-content:flex-end;padding-right:12px;
-  font-family:var(--f-mono);font-weight:700;font-size:12px;color:var(--rune);font-variant-numeric:tabular-nums;
+.search::placeholder{color:var(--dimmer)}
+.danger{
+  font:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-left:auto;
+  background:transparent;color:#ff8fa3;border:2px solid #5d2740;padding:6px 11px;
 }
-.mc-sum[data-zero="1"]{color:var(--faint)}
+.danger:hover{background:#2a1520}
 
-.item{display:flex;flex-direction:column;align-items:center;gap:3px}
-.frame{
-  position:relative;width:var(--icon);height:var(--icon);display:block;padding:0;border:none;
-  background:transparent;box-shadow:2px 2px 0 var(--shadow);cursor:pointer;transition:transform .08s ease;
+/* ---- 종류별 카드 ---- */
+.group{margin-bottom:30px}
+.group[hidden]{display:none}
+.ghead{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:2px solid var(--edge);margin-bottom:14px;flex-wrap:wrap}
+.ghead .gname{font-family:"Do Hyeon",sans-serif;font-size:19px}
+.ghead .gtag{
+  font-size:10.5px;font-weight:600;letter-spacing:.1em;font-family:var(--mono);
+  color:var(--warn);border:1px solid #6b4a26;background:#2a1f16;padding:2px 7px;
 }
-.frame:hover{transform:translate(-1px,-1px)}
-.frame:active{transform:translate(1px,1px)}
-.frame img{width:100%;height:100%;display:block;image-rendering:pixelated}
-.item[data-zero="1"] .frame{opacity:.38;box-shadow:none}
-.item[data-zero="1"] .frame:hover{opacity:.85}
-.qty{display:flex;align-items:stretch;border:1px solid var(--line);background:var(--surface)}
+.ghead .gcount{font-family:var(--mono);font-size:12px;color:var(--dimmer);font-variant-numeric:tabular-nums}
+.ghead .gsum{margin-left:auto;font-family:var(--mono);font-weight:600;font-size:13px;color:var(--cyan);font-variant-numeric:tabular-nums}
+.ghead .gsum[data-zero="1"]{color:var(--dimmer)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:10px}
+.card{
+  background:var(--surface);border:2px solid var(--edge-soft);
+  padding:10px 10px 9px;display:flex;flex-direction:column;gap:8px;
+  transition:border-color .12s,background .12s;position:relative;
+}
+.card[hidden]{display:none}
+.card[data-zero="0"]{border-color:var(--have);background:var(--raised)}
+.slot{
+  aspect-ratio:1;background:var(--ground);border:1px dashed var(--edge);
+  display:grid;place-items:center;overflow:hidden;cursor:pointer;padding:0;
+}
+.slot img{width:100%;height:100%;display:block;image-rendering:pixelated}
+.card[data-zero="1"] .slot img{opacity:.42}
+.slot:hover img{opacity:1}
+.meta{display:flex;align-items:center;gap:7px;min-width:0}
+.lv{
+  width:20px;height:20px;flex:none;display:grid;place-items:center;
+  font-family:var(--mono);font-size:11px;font-weight:600;color:#141020;
+}
+.nm{font-size:12.5px;line-height:1.3;color:var(--dim);word-break:keep-all;min-width:0}
+.nm b{color:var(--ink);font-weight:600}
+.rune{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dimmer);font-variant-numeric:tabular-nums}
+.qty{display:flex;border:2px solid var(--edge-soft);background:var(--ground)}
 .qty button{
-  width:20px;flex:none;border:none;background:var(--sunken);padding:0;
-  font-family:var(--f-mono);font-weight:700;font-size:13px;line-height:1;color:var(--dim);
+  width:26px;flex:none;border:none;background:var(--surface);color:var(--dim);
+  font-family:var(--mono);font-weight:600;font-size:14px;line-height:1;padding:0;cursor:pointer;
   touch-action:manipulation;
 }
-.qty button:hover{background:var(--rune);color:#FFFFFF}
-.qty button:active{background:var(--rune);color:#FFFFFF}
+.qty button:hover{background:var(--have);color:var(--ground)}
 .qi{
-  width:30px;border:none;background:transparent;
-  text-align:center;font-family:var(--f-mono);font-weight:700;font-size:12px;padding:2px 0;
-  color:var(--text);font-variant-numeric:tabular-nums;-moz-appearance:textfield;
+  flex:1;min-width:0;border:none;background:transparent;color:var(--ink);text-align:center;
+  font-family:var(--mono);font-weight:600;font-size:13px;padding:4px 0;
+  font-variant-numeric:tabular-nums;-moz-appearance:textfield;
 }
 .qi::-webkit-outer-spin-button,.qi::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.item[data-zero="1"] .qi{color:var(--faint)}
-.frame{touch-action:manipulation}
-.mc-none{color:var(--line);font-size:15px;line-height:1}
-
-/* 무지개 — 특수 주사기 줄 */
-.mc-special{background:var(--rune-soft)}
-.mc-wide{grid-column:span 5;justify-content:flex-start;gap:14px;padding:8px 10px}
-.special-note{font-size:11px;color:var(--dim);line-height:1.5}
-.special-note b{color:var(--text);font-weight:600}
+.card[data-zero="1"] .qi{color:var(--dimmer)}
 .rainbow-ph{
-  display:block;width:100%;height:100%;border:3px solid #141220;
-  background:linear-gradient(135deg,#FF6B6B 0%,#FFB84D 20%,#FFE66D 38%,#7BD88F 56%,#5BC0EB 74%,#9B72F2 100%);
+  display:block;width:100%;height:100%;
+  background:linear-gradient(135deg,#ff6b6b 0%,#ffb84d 20%,#ffe66d 38%,#7bd88f 56%,#5bc0eb 74%,#9b72f2 100%);
 }
-.egg-rainbow{border-color:var(--rune)}
-.egg-rainbow .egg-head{background:var(--rune-soft)}
-
-
-@media (max-width:680px){
-  .matrix{grid-template-columns:repeat(5,minmax(0,1fr))}
-  .mh-name,.mh-sum{display:none}
-  .mc-name{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:8px;padding:8px 12px 4px;border-bottom:none}
-  .mc-sum{grid-column:1/-1;justify-content:flex-start;padding:0 12px 8px}
-  .mh{font-size:11px}
-  .qty button{width:16px;font-size:12px}
-  .qi{width:24px;font-size:11px}
-}
+.gnote{font-size:11.5px;color:var(--dimmer);margin:10px 0 0;line-height:1.6}
+.gnote b{color:var(--dim);font-weight:600}
+.empty{padding:26px 0;text-align:center;color:var(--dimmer);font-size:13px}
 
 /* ---- 알 편성 ---- */
-.seg{display:flex;border:2px solid var(--text)}
-.seg button{background:var(--surface);border:none;padding:4px 11px;font-size:11px;font-weight:600}
-.seg button + button{border-left:2px solid var(--text)}
-.seg button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
-#packNote{font-family:var(--f-mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
-.field input::placeholder{color:var(--faint);font-family:var(--f-body);font-weight:500;font-size:12.5px}
+.board{margin-top:8px}
+.bhead{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:2px solid var(--edge);margin-bottom:14px;flex-wrap:wrap}
+.bhead h2{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:19px;margin:0}
+.bhead .bnote{font-family:var(--mono);font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.eggs{display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:12px}
+.egg{background:var(--surface);border:2px solid var(--edge-soft)}
+.egg[data-full="1"]{border-color:var(--edge)}
+.egg-rainbow{border-color:#9b72f2}
+.egg-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 10px;border-bottom:1px solid var(--edge-soft)}
+.egg-head .id{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dimmer);font-weight:600}
+.egg-head .yield{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--cyan);font-variant-numeric:tabular-nums}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:9px}
+.eslot{aspect-ratio:1;background:var(--ground);border:1px solid var(--edge-soft);overflow:hidden}
+.eslot img,.eslot .rainbow-ph{width:100%;height:100%;display:block;image-rendering:pixelated}
+.eslot.empty{border-style:dashed;border-color:var(--edge-soft);background:transparent}
+.egg-note{padding:0 10px 9px;font-family:var(--mono);font-size:10px;color:var(--dimmer);line-height:1.5;font-variant-numeric:tabular-nums}
+.egg-note sup{font-size:8px}
+.overflow{grid-column:1/-1;padding:12px;text-align:center;font-size:12px;color:var(--dimmer);border:2px dashed var(--edge-soft)}
 
-.eggs{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:14px;padding:14px}
-.egg{border:2px solid var(--text);background:var(--sunken);box-shadow:3px 3px 0 var(--shadow)}
-.egg[data-full="1"]{border-color:var(--rune)}
-.egg[data-full="1"] .egg-head{background:var(--rune-soft)}
-.egg-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 10px;border-bottom:2px solid var(--text);background:var(--surface)}
-.egg-head .id{font-family:var(--f-px);font-size:9px;letter-spacing:.1em}
-.egg-head .yield{font-family:var(--f-mono);font-weight:700;font-size:13px;color:var(--rune);font-variant-numeric:tabular-nums}
-.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:9px}
-.slot{aspect-ratio:1}
-.slot img{width:100%;height:100%;display:block;image-rendering:pixelated}
-.slot.empty{border:2px dashed var(--line)}
-.egg-note{padding:0 10px 8px;font-size:10.5px;color:var(--dim);font-family:var(--f-mono);font-variant-numeric:tabular-nums;line-height:1.45}
-.egg-note sup{font-size:8.5px}
-.empty-state{padding:32px 14px;text-align:center;color:var(--dim);font-size:13px}
-.overflow-note{grid-column:1/-1;padding:11px;text-align:center;font-size:12px;color:var(--dim);border:2px dashed var(--line)}
-
-footer{margin-top:26px;font-size:11.5px;color:var(--faint);line-height:1.75}
-footer code{font-family:var(--f-mono);color:var(--dim)}
+footer{margin-top:34px;padding-top:16px;border-top:2px solid var(--edge-soft);font-size:11.5px;color:var(--dimmer);line-height:1.8}
+footer code{font-family:var(--mono);color:var(--dim)}
 footer b{color:var(--dim);font-weight:600}
-.placeholder-note{margin-top:10px;padding:9px 12px;border:2px dashed var(--line);font-size:11.5px;color:var(--dim);line-height:1.6}
-.placeholder-note b{color:var(--text);font-weight:600}
 
-@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+@media (max-width:640px){
+  h1{font-size:25px}
+  .score{grid-template-columns:1fr;gap:10px}
+  .splits{justify-content:flex-start;gap:16px}
+  .split{text-align:left}
+  .total .num{font-size:36px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+  .danger{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <div class="wrap">
 
-  <header class="masthead">
-    <div>
-      <span class="eyebrow">Pixel Monster &middot; Awakening</span>
-      <h1>각성 룬 계산기</h1>
-    </div>
-    <p class="tagline">주사기 &rarr; <b>알 부화(최대 8개)</b> &rarr; 카이저 던전 &rarr; 각성 룬</p>
-    <button class="btn" id="reset" type="button">보유량 초기화</button>
+  <header class="mast">
+    <span class="eyebrow">Pixel Monster &middot; Awakening</span>
+    <h1>각성 룬 계산기</h1>
+    <p class="flow">주사기 &rarr; <b>알 부화(최대 8개)</b> &rarr; 카이저 던전 &rarr; 각성 룬</p>
   </header>
 
-  <section class="settings">
+  <section class="score">
+    <div class="total"><span class="num" id="total">0</span><span class="unit">룬</span></div>
+    <div class="splits">
+      <div class="split"><span class="k">주사기</span><span class="v"><span id="sCount">0</span><em id="sOwned">개</em></span></div>
+      <div class="split"><span class="k">던전</span><span class="v"><span id="sEggs">0</span><em>회</em></span></div>
+      <div class="split"><span class="k">알 평균</span><span class="v"><span id="sAvg">0</span><em>룬</em></span></div>
+      <div class="split"><span class="k">알 최대</span><span class="v"><span id="sMax">0</span><em>룬</em></span></div>
+    </div>
+    <div class="track" id="bar"><i style="width:0%"></i></div>
+    <p class="goalline" id="goalMsg"></p>
+    <div class="calcrow">
+      <span>주사기 룬 합 <b id="base">0</b></span>
+      <span>알 계산 <b id="eggTotal">0</b></span>
+      <span>딱코 <b id="mDdak">×1.1</b></span>
+      <span>능력 룬 <b id="mBonus">×1.15</b></span>
+      <span>최종 배율 <b id="mAll">×1.265</b></span>
+    </div>
+  </section>
+
+  <section class="setbar">
     <div class="field">
       <label for="ddak">획득량 보정</label>
-      <label class="toggle" for="ddak">
+      <label class="sw" for="ddak">
         <input type="checkbox" id="ddak" checked>
-        <span class="box" aria-hidden="true">&#10003;</span>
-        <span>
-          <span class="lab">딱코 +10%</span>
-          <span class="sub">체크 시 &times;1.10</span>
-        </span>
+        <span class="bx" aria-hidden="true">&#10003;</span>
+        <span><span class="t">딱코 +10%</span><span class="s">체크 시 &times;1.10</span></span>
       </label>
     </div>
     <div class="field">
       <label for="bonus">능력 룬 보너스 (%)</label>
-      <input type="number" id="bonus" inputmode="decimal" step="0.1" min="0" max="1000" value="15.0">
+      <input type="number" id="bonus" inputmode="decimal" step="0.1" min="0" max="1000" value="15">
     </div>
     <div class="field">
       <label for="target">목표 각성룬 (총합)</label>
@@ -290,91 +256,49 @@ footer b{color:var(--dim);font-weight:600}
     </div>
     <div class="field">
       <label for="eggLimit">사용할 알 개수</label>
-      <input type="number" id="eggLimit" inputmode="numeric" min="0" max="999" placeholder="비우면 전부 사용">
+      <input type="number" id="eggLimit" inputmode="numeric" min="0" max="999" placeholder="비우면 전부">
     </div>
     <div class="field">
       <label for="fill8">알 편성 방식</label>
-      <label class="toggle" for="fill8">
+      <label class="sw" for="fill8">
         <input type="checkbox" id="fill8" checked>
-        <span class="box" aria-hidden="true">&#10003;</span>
-        <span>
-          <span class="lab">8칸 가득 채우기</span>
-          <span class="sub">끄면 주사기를 적게 쓰는 편성</span>
-        </span>
+        <span class="bx" aria-hidden="true">&#10003;</span>
+        <span><span class="t">8칸 가득 채우기</span><span class="s">끄면 주사기를 적게</span></span>
       </label>
     </div>
   </section>
 
-  <div class="workspace">
-
-    <aside class="panel" id="readout">
-      <div class="total">
-        <span class="eyebrow">Total Rune</span>
-        <div class="num"><span id="total">0</span><small>룬</small></div>
-        <p class="formula"><code>알 1개 = (10 + 주사기 룬 합) &times; 1.2<sup>칸수&minus;1</sup></code></p>
-      </div>
-
-      <div class="rows">
-        <div class="row"><span class="k">주사기 룬 합계</span><span class="v" id="base">0</span></div>
-        <div class="row"><span class="k">알 계산 적용</span><span class="v" id="eggTotal">0</span></div>
-        <div class="row"><span class="k">딱코</span><span class="v" id="mDdak">&times;1.1</span></div>
-        <div class="row"><span class="k">능력 룬 보너스</span><span class="v" id="mBonus">&times;1.15</span></div>
-        <div class="row emph"><span class="k">최종 배율</span><span class="v" id="mAll">&times;1.265</span></div>
-      </div>
-
-      <div class="tally" id="tally"></div>
-
-      <div class="goal">
-        <div class="goal-top"><span class="k">Goal</span><span class="v" id="goalPct">0%</span></div>
-        <div class="bar" id="bar"><i style="width:0%"></i></div>
-        <p class="goal-msg" id="goalMsg"></p>
-        <div class="need" id="need" hidden>
-          <div class="need-head">부족분을 채우려면 (8칸 가득 채운 알 기준 · 던전 횟수)</div>
-          <div class="need-grid" id="needGrid"></div>
-        </div>
-      </div>
-
-      <div class="stats">
-        <div class="stat"><span class="k">Syringes Used</span><span class="v"><span id="sCount">0</span><em id="sOwned">개</em></span></div>
-        <div class="stat"><span class="k">Dungeon Runs</span><span class="v"><span id="sEggs">0</span><em>회</em></span></div>
-        <div class="stat"><span class="k">Max / Egg</span><span class="v"><span id="sMax">0</span><em>룬</em></span></div>
-        <div class="stat"><span class="k">Avg / Egg</span><span class="v"><span id="sAvg">0</span><em>룬</em></span></div>
-      </div>
-    </aside>
-
-    <section class="panel" id="inventory">
-      <div class="panel-head">
-        <h2>보유 주사기</h2>
-        <span class="note">아이콘을 누르면 +1 &middot; 아래 &minus; / + 버튼이나 숫자로 조정</span>
-      </div>
-      <div class="matrix" id="matrix"></div>
-    </section>
-
-    <section class="panel" id="eggboard">
-      <div class="panel-head">
-        <h2>알 편성</h2>
-        <span class="note" id="packNote"></span>
-      </div>
-      <div class="eggs" id="eggs"></div>
-    </section>
-
+  <div class="controls" id="controls">
+    <button type="button" class="chip" data-f="all" aria-pressed="true">전체</button>
+    <button type="button" class="chip" data-f="common" aria-pressed="false"><span class="dot" style="background:var(--g-common)"></span>일반</button>
+    <button type="button" class="chip" data-f="rare" aria-pressed="false"><span class="dot" style="background:var(--g-rare)"></span>레어</button>
+    <button type="button" class="chip" data-f="epic" aria-pressed="false"><span class="dot" style="background:var(--g-epic)"></span>에픽</button>
+    <button type="button" class="chip" data-f="unique" aria-pressed="false"><span class="dot" style="background:var(--g-unique)"></span>유니크</button>
+    <button type="button" class="chip" data-f="legend" aria-pressed="false"><span class="dot" style="background:var(--g-legend)"></span>레전드</button>
+    <span class="sep"></span>
+    <button type="button" class="chip" id="ownedOnly" aria-pressed="false">보유만</button>
+    <input type="search" class="search" id="q" placeholder="주사기 이름" aria-label="주사기 이름 검색">
+    <button type="button" class="danger" id="reset">전체 해제</button>
   </div>
+
+  <div id="groups"></div>
+  <div class="empty" id="noMatch" hidden>조건에 맞는 주사기가 없습니다.</div>
+
+  <section class="board">
+    <div class="bhead">
+      <h2>알 편성</h2>
+      <span class="bnote" id="packNote"></span>
+    </div>
+    <div class="eggs" id="eggs"></div>
+  </section>
 
   <footer>
     알 1개 = <code>(10 + 그 알의 주사기 룬 합) &times; 1.2<sup>칸수&minus;1</sup></code> &middot;
-    총 각성룬 = <code>&Sigma;(알) &times; 딱코 &times; (1 + 능력 룬 보너스)</code> &middot; 소수점은 내림 처리했습니다.<br>
-    룬 획득량 &mdash; 일반 50 &middot; 레어 100 &middot; 에픽 200 &middot; 유니크 300 &middot; 레전드 500 &middot; 알 1개당 주사기 최대 8개, <b>같은 이름의 주사기는 등급이 달라도 알 1개에 1개만</b>,
-    <b>모든 면역은 스턴·침묵·빙결과 같은 알에 넣을 수 없음</b>(스턴·침묵·빙결끼리는 가능).<br>
-    알 편성: <b>8칸 가득 채우기</b>를 켜면 목표를 채울 수 있을 때 8칸을 가득 채운 알을 가장 적게 쓰고, 그 안에서 싼 주사기부터 써서 목표에 가장 가깝게 맞춥니다.
-    끄면 칸 수에 얽매이지 않고 <b>주사기를 적게 쓰면서</b> 목표에 가장 가깝게 맞춥니다.
-    8칸으로 못 맞추면 칸 수를 줄여서, 목표를 못 채우면 만들 수 있는 최대로 편성합니다.<br>
-    <b>무지개 주사기</b>는 알 1개에 단독으로만 들어가며 그 알은 10,000 룬(딱코·보너스 적용). 아껴 쓰도록 일반 주사기로 목표를 못 채울 때만 필요한 개수만 씁니다.<br>
-    보유량은 이 브라우저에만 저장됩니다.
-    <div class="placeholder-note">
-      아이콘은 공유해주신 스크린샷에서 잘라낸 <b>실제 게임 이미지</b>입니다(13종 39칸).
-      13종 이름은 모두 게임 내 명칭입니다.
-      <b>무지개 주사기는 이미지가 아직 없어 무지개색 칸으로 대신 표시</b>하고 있습니다.
-    </div>
+    총 각성룬 = <code>&Sigma;(알) &times; 딱코 &times; (1 + 능력 룬 보너스)</code> &middot; 소수점 내림.<br>
+    룬 획득량 &mdash; 일반 50 &middot; 레어 100 &middot; 에픽 200 &middot; 유니크 300 &middot; 레전드 500 &middot; 알 1개당 주사기 최대 8개.
+    <b>같은 이름은 등급이 달라도 알 1개에 1개만</b>, <b>모든 면역은 스턴·침묵·빙결과 같은 알에 넣을 수 없음</b>.<br>
+    <b>무지개</b>는 알 1개에 단독으로 들어가며 그 알은 10,000 룬. 일반 주사기로 목표를 못 채울 때만 필요한 만큼 사용합니다.<br>
+    아이콘은 게임 화면에서 잘라낸 실제 이미지(13종 39칸). 보유량은 이 브라우저에만 저장됩니다.
   </footer>
 </div>
 
@@ -383,11 +307,11 @@ footer b{color:var(--dim);font-weight:600}
   "use strict";
 
   var GRADES = [
-    {key:"common", name:"일반",   en:"COMMON", rune:50},
-    {key:"rare",   name:"레어",   en:"RARE",   rune:100},
-    {key:"epic",   name:"에픽",   en:"EPIC",   rune:200},
-    {key:"unique", name:"유니크", en:"UNIQUE", rune:300},
-    {key:"legend", name:"레전드", en:"LEGEND", rune:500}
+    {key:"common", name:"일반",   ab:"일", rune:50},
+    {key:"rare",   name:"레어",   ab:"레", rune:100},
+    {key:"epic",   name:"에픽",   ab:"에", rune:200},
+    {key:"unique", name:"유니크", ab:"유", rune:300},
+    {key:"legend", name:"레전드", ab:"레", rune:500}
   ];
   var GI = {};
   GRADES.forEach(function(g, i){ GI[g.key] = i; });
@@ -395,22 +319,22 @@ footer b{color:var(--dim);font-weight:600}
   var FIVE = ["common","rare","epic","unique","legend"];
   var EUL  = ["epic","unique","legend"];
 
-  /* 공유해주신 스크린샷 39칸을 아트워크별로 묶은 결과 (이름은 사용자 확인).
+  /* 스크린샷 39칸을 아트워크별로 묶은 결과 (이름은 사용자 확인).
      상태이상 주사기: 스턴·침묵·빙결(레어), 모든 면역(에픽). */
   var TYPES = [
-    {id:"t1",  name:"체력",          grades:FIVE},
-    {id:"t2",  name:"방어",          grades:FIVE},
-    {id:"t3",  name:"회피",          grades:FIVE},
-    {id:"t4",  name:"쌍둥이",        grades:EUL},
-    {id:"t5",  name:"Z프로그램",     grades:["legend"]},
-    {id:"t6",  name:"제한시간",      grades:FIVE},
-    {id:"t7",  name:"부활",          grades:EUL},
-    {id:"t8",  name:"스턴", grades:["rare"],   status:true},
-    {id:"t9",  name:"침묵", grades:["rare"],   status:true},
-    {id:"t10", name:"빙결", grades:["rare"],   status:true},
-    {id:"t11", name:"모든 면역", grades:["epic"],   status:true},
-    {id:"t12", name:"인원제한",      grades:EUL},
-    {id:"t13", name:"바이러스",      grades:FIVE}
+    {id:"t1",  name:"체력",      grades:FIVE},
+    {id:"t2",  name:"방어",      grades:FIVE},
+    {id:"t3",  name:"회피",      grades:FIVE},
+    {id:"t4",  name:"쌍둥이",    grades:EUL},
+    {id:"t5",  name:"Z프로그램", grades:["legend"]},
+    {id:"t6",  name:"제한시간",  grades:FIVE},
+    {id:"t7",  name:"부활",      grades:EUL},
+    {id:"t8",  name:"스턴",      grades:["rare"], status:true},
+    {id:"t9",  name:"침묵",      grades:["rare"], status:true},
+    {id:"t10", name:"빙결",      grades:["rare"], status:true},
+    {id:"t11", name:"모든 면역", grades:["epic"], status:true},
+    {id:"t12", name:"인원제한",  grades:EUL},
+    {id:"t13", name:"바이러스",  grades:FIVE}
   ];
 
   var IMG = {
@@ -484,7 +408,8 @@ footer b{color:var(--dim);font-weight:600}
     });
   });
 
-  var state = {counts:{}, ddak:true, bonus:15, target:5000, eggs:0, fill8:true};
+  var state = {counts:{}, ddak:true, bonus:15, target:5000, eggs:0, fill8:true,
+               filter:"all", ownedOnly:false, q:""};
   ITEMS.forEach(function(it){ state.counts[it.id] = 0; });
   state.counts[RAINBOW] = 0;
   /* 처음 열었을 때 비어 보이지 않도록 채워둔 예시 보유량 */
@@ -513,6 +438,8 @@ footer b{color:var(--dim);font-weight:600}
       if(isFinite(saved.target)) state.target = saved.target;
       if(isFinite(saved.eggs) && saved.eggs >= 0) state.eggs = Math.min(999, Math.floor(saved.eggs));
       if(typeof saved.fill8 === "boolean") state.fill8 = saved.fill8;
+      if(saved.filter) state.filter = saved.filter;
+      if(typeof saved.ownedOnly === "boolean") state.ownedOnly = saved.ownedOnly;
     }
   }catch(e){}
 
@@ -520,81 +447,67 @@ footer b{color:var(--dim);font-weight:600}
   function fmt(n){ return Math.round(n).toLocaleString("ko-KR"); }
   function mul(n){ return "×" + n.toFixed(3).replace(/0+$/, "").replace(/\.$/, ""); }
 
-  /* ---- 정적 DOM ---- */
+  /* ---- 종류별 카드 ---- */
 
+  function cardHtml(id, gk, gname, rune, label){
+    return '<div class="card" data-id="' + id + '" data-g="' + gk + '" data-zero="1">' +
+      '<button type="button" class="slot" data-add="' + id + '" title="' + label + ' — 누르면 +1" aria-label="' + label + ' 1개 추가">' +
+        art(id, label) +
+      '</button>' +
+      '<div class="meta">' +
+        '<span class="lv" style="background:var(--g-' + gk + ')">' + GRADES[GI[gk]].ab + '</span>' +
+        '<span class="nm">' + gname + '</span>' +
+        '<span class="rune">' + rune + '</span>' +
+      '</div>' +
+      '<div class="qty">' +
+        '<button type="button" data-d="-1" data-k="' + id + '" aria-label="' + label + ' 1개 빼기">&minus;</button>' +
+        '<input class="qi" type="number" inputmode="numeric" min="0" max="' + MAX_COUNT + '" data-k="' + id + '" aria-label="' + label + ' 개수">' +
+        '<button type="button" data-d="1" data-k="' + id + '" aria-label="' + label + ' 1개 추가">+</button>' +
+      '</div>' +
+    '</div>';
+  }
 
-  var HAS = {};
-  TYPES.forEach(function(t){ t.grades.forEach(function(gk){ HAS[t.id + "_" + gk] = true; }); });
-
-  document.getElementById("tally").innerHTML = GRADES.map(function(g){
-    return '<div class="tally-c" data-tally="' + g.key + '">' +
-      '<span class="dot" style="background:var(--sw-' + g.key + ')"></span>' +
-      '<span class="n" data-tn="' + g.key + '">0</span>' +
-      '<span class="g">' + g.name + '</span></div>';
+  var groupsHtml = TYPES.map(function(t){
+    return '<section class="group" data-type="' + t.id + '">' +
+      '<div class="ghead">' +
+        '<span class="gname">' + t.name + '</span>' +
+        (t.status ? '<span class="gtag">상태이상</span>' : '') +
+        '<span class="gcount" data-tcount="' + t.id + '">0개</span>' +
+        '<span class="gsum" data-tsum="' + t.id + '">0 룬</span>' +
+      '</div>' +
+      '<div class="grid">' + t.grades.map(function(gk){
+        var g = GRADES[GI[gk]];
+        return cardHtml(t.id + "_" + gk, gk, g.name, g.rune, t.name + " " + g.name);
+      }).join("") + '</div>' +
+    '</section>';
   }).join("");
 
-  var matrixHtml = '<div class="mh mh-name">TYPE</div>' +
-    GRADES.map(function(g){
-      return '<div class="mh" data-ch="' + g.key + '">' +
-             '<span class="cg">' + g.name + '</span>' +
-             '<span class="cr">' + g.rune + '룬</span></div>';
-    }).join("") +
-    '<div class="mh mh-sum">RUNE</div>';
-
-  matrixHtml += TYPES.map(function(t){
-    var row = '<div class="mc mc-name" data-row="' + t.id + '">' +
-        '<span class="tn">' + t.name + '</span>' +
-        (t.tbd ? '<span class="tbd">이름 미확인</span>' : '') +
-        '<span class="tc" data-tcount="' + t.id + '">0개</span>' +
-      '</div>';
-    row += GRADES.map(function(g){
-      var id = t.id + "_" + g.key;
-      if(!HAS[id]) return '<div class="mc" data-row="' + t.id + '"><span class="mc-none">&middot;</span></div>';
-      var label = t.name + " · " + g.name;
-      return '<div class="mc" data-row="' + t.id + '">' +
-        '<div class="item" data-id="' + id + '">' +
-          '<button type="button" class="frame" data-add="' + id + '" title="' + label + ' (' + g.rune + '룬) — 누르면 +1" aria-label="' + label + ' 1개 추가">' +
-            art(id, label) +
-          '</button>' +
-          '<div class="qty">' +
-            '<button type="button" data-d="-1" data-k="' + id + '" aria-label="' + label + ' 1개 빼기">&minus;</button>' +
-            '<input class="qi" type="number" inputmode="numeric" min="0" max="' + MAX_COUNT + '" data-k="' + id + '" aria-label="' + label + ' 개수">' +
-            '<button type="button" data-d="1" data-k="' + id + '" aria-label="' + label + ' 1개 추가">+</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join("");
-    row += '<div class="mc mc-sum" data-row="' + t.id + '" data-tsum="' + t.id + '">0</div>';
-    return row;
-  }).join("");
-
-  /* 무지개 — 등급 열과 무관한 특수 주사기라 한 줄을 통째로 쓴다 */
-  matrixHtml +=
-    '<div class="mc mc-name mc-special">' +
-      '<span class="tn">무지개</span>' +
-      '<span class="tc" data-tcount="' + RAINBOW + '">0개</span>' +
+  groupsHtml += '<section class="group" data-type="' + RAINBOW + '">' +
+    '<div class="ghead">' +
+      '<span class="gname">무지개</span>' +
+      '<span class="gtag">특수</span>' +
+      '<span class="gcount" data-tcount="' + RAINBOW + '">0개</span>' +
+      '<span class="gsum" data-tsum="' + RAINBOW + '">0 룬</span>' +
     '</div>' +
-    '<div class="mc mc-wide mc-special">' +
-      '<div class="item" data-id="' + RAINBOW + '">' +
-        '<button type="button" class="frame" data-add="' + RAINBOW + '" title="무지개 (알 1개 단독 = 10,000룬) — 누르면 +1" aria-label="무지개 1개 추가">' +
+    '<div class="grid">' +
+      '<div class="card" data-id="' + RAINBOW + '" data-g="' + RAINBOW + '" data-zero="1">' +
+        '<button type="button" class="slot" data-add="' + RAINBOW + '" title="무지개 — 누르면 +1" aria-label="무지개 1개 추가">' +
           art(RAINBOW, "무지개") +
         '</button>' +
+        '<div class="meta"><span class="nm"><b>무지개</b></span><span class="rune">10,000</span></div>' +
         '<div class="qty">' +
           '<button type="button" data-d="-1" data-k="' + RAINBOW + '" aria-label="무지개 1개 빼기">&minus;</button>' +
           '<input class="qi" type="number" inputmode="numeric" min="0" max="' + MAX_COUNT + '" data-k="' + RAINBOW + '" aria-label="무지개 개수">' +
           '<button type="button" data-d="1" data-k="' + RAINBOW + '" aria-label="무지개 1개 추가">+</button>' +
         '</div>' +
       '</div>' +
-      '<span class="special-note">알 1개에 <b>단독</b>으로만 &middot; 그 알은 <b>10,000 룬</b> (딱코·보너스 적용)<br>' +
-      '일반 주사기로 목표를 못 채울 때만 필요한 만큼 사용</span>' +
     '</div>' +
-    '<div class="mc mc-sum mc-special" data-tsum="' + RAINBOW + '">0</div>';
+    '<p class="gnote">알 1개에 <b>단독</b>으로만 들어가며 그 알은 <b>10,000 룬</b> (딱코·보너스 적용).<br>' +
+    '아껴 쓰도록 일반 주사기로 목표를 못 채울 때만 필요한 개수만 사용합니다.</p>' +
+  '</section>';
 
-  var matrixEl = document.getElementById("matrix");
-  matrixEl.innerHTML = matrixHtml;
-  var groupsEl = matrixEl;
-
-  /* ---- 계산 ---- */
+  var groupsEl = document.getElementById("groups");
+  groupsEl.innerHTML = groupsHtml;
 
   /* ---- 편성 ----
      규칙: 알 1개에 주사기 최대 8개, 같은 이름(종류)은 등급이 달라도 알 1개에 1개만.
@@ -914,44 +827,39 @@ footer b{color:var(--dim);font-weight:600}
     return acc;
   }
 
+  /* ---- 그리기 ---- */
+
+  function setCard(id, n){
+    var card = groupsEl.querySelector('.card[data-id="' + id + '"]');
+    card.setAttribute("data-zero", n === 0 ? "1" : "0");
+    var inp = card.querySelector("input");
+    if(document.activeElement !== inp) inp.value = n;
+  }
+
   function render(){
-    var base = 0, count = 0, perGrade = {};
-    GRADES.forEach(function(g){ perGrade[g.key] = 0; });
+    var base = 0, count = 0;
 
     TYPES.forEach(function(t){
       var tc = 0, ts = 0;
       t.grades.forEach(function(gk){
-        var id = t.id + "_" + gk, n = state.counts[id], g = GRADES[GI[gk]];
-        tc += n; ts += n * g.rune;
-        perGrade[gk] += n;
-        var cell = matrixEl.querySelector('.item[data-id="' + id + '"]');
-        cell.setAttribute("data-zero", n === 0 ? "1" : "0");
-        var inp = cell.querySelector("input");
-        if(document.activeElement !== inp) inp.value = n;
+        var id = t.id + "_" + gk, n = state.counts[id];
+        tc += n; ts += n * GRADES[GI[gk]].rune;
+        setCard(id, n);
       });
       base += ts; count += tc;
-      matrixEl.querySelector('[data-tcount="' + t.id + '"]').textContent = tc + "개";
-      var sumEl = matrixEl.querySelector('[data-tsum="' + t.id + '"]');
-      sumEl.textContent = fmt(ts);
+      groupsEl.querySelector('[data-tcount="' + t.id + '"]').textContent = tc + "개";
+      var sumEl = groupsEl.querySelector('[data-tsum="' + t.id + '"]');
+      sumEl.textContent = fmt(ts) + " 룬";
       sumEl.setAttribute("data-zero", ts === 0 ? "1" : "0");
     });
 
-    /* 무지개 */
     var rc = state.counts[RAINBOW] || 0;
-    var rCell = matrixEl.querySelector('.item[data-id="' + RAINBOW + '"]');
-    rCell.setAttribute("data-zero", rc === 0 ? "1" : "0");
-    var rInp = rCell.querySelector("input");
-    if(document.activeElement !== rInp) rInp.value = rc;
-    matrixEl.querySelector('[data-tcount="' + RAINBOW + '"]').textContent = rc + "개";
-    var rSum = matrixEl.querySelector('[data-tsum="' + RAINBOW + '"]');
-    rSum.textContent = fmt(rc * RAINBOW_RUNE);
+    setCard(RAINBOW, rc);
+    groupsEl.querySelector('[data-tcount="' + RAINBOW + '"]').textContent = rc + "개";
+    var rSum = groupsEl.querySelector('[data-tsum="' + RAINBOW + '"]');
+    rSum.textContent = fmt(rc * RAINBOW_RUNE) + " 룬";
     rSum.setAttribute("data-zero", rc === 0 ? "1" : "0");
     base += rc * RAINBOW_RUNE; count += rc;
-
-    GRADES.forEach(function(g){
-      document.querySelector('[data-tn="' + g.key + '"]').textContent = fmt(perGrade[g.key]);
-      document.querySelector('[data-tally="' + g.key + '"]').setAttribute("data-zero", perGrade[g.key] === 0 ? "1" : "0");
-    });
 
     var mD = state.ddak ? 1.1 : 1;
     var mB = 1 + (state.bonus || 0) / 100;
@@ -966,7 +874,6 @@ footer b{color:var(--dim);font-weight:600}
     eggs.forEach(function(egg){ used += egg.length; });
     var left = count - used;
 
-    var packNote = document.getElementById("packNote");
     var notes = [];
     if(eggs.length){
       if(plan.rainbow > 0) notes.push("무지개 " + fmt(plan.rainbow) + "개 사용");
@@ -985,10 +892,8 @@ footer b{color:var(--dim);font-weight:600}
       if(plan.mode === "full" || plan.mode === "target") notes.push("최대 가능 " + fmt(plan.maxTotal) + " 룬");
     }
     if(left > 0) notes.push("남는 주사기 " + fmt(left) + "개");
-    if(state.eggs > 0 && eggs.length < state.eggs){
-      notes.push("알 " + fmt(eggs.length) + "개만 사용");
-    }
-    packNote.textContent = notes.join(" · ");
+    if(state.eggs > 0 && eggs.length < state.eggs) notes.push("알 " + fmt(eggs.length) + "개만 사용");
+    document.getElementById("packNote").textContent = notes.join(" · ");
 
     document.getElementById("total").textContent = fmt(total);
     document.getElementById("base").textContent = fmt(base);
@@ -1006,46 +911,61 @@ footer b{color:var(--dim);font-weight:600}
     var bar = document.getElementById("bar");
     var pct = target > 0 ? Math.min(100, (total / target) * 100) : 0;
     bar.firstElementChild.style.width = pct + "%";
-    bar.className = "bar" + (target > 0 && total >= target ? " done" : "");
-    document.getElementById("goalPct").textContent =
-      target > 0 ? (Math.floor(pct * 10) / 10) + "%  " + fmt(total) + " / " + fmt(target) : "목표 미설정";
+    bar.className = "track" + (target > 0 && total >= target ? " done" : "");
 
-    var msg = document.getElementById("goalMsg"), need = document.getElementById("need");
+    var msg = document.getElementById("goalMsg");
     if(target <= 0){
-      msg.textContent = "목표 각성룬을 입력하면 부족분을 계산합니다.";
-      need.hidden = true;
+      msg.textContent = "목표 각성룬을 입력하면 부족분과 필요한 던전 횟수를 계산합니다.";
     }else if(total >= target){
-      msg.innerHTML = "목표 달성 &mdash; <b>" + fmt(total - target) + "</b> 룬 초과 확보";
-      need.hidden = true;
+      msg.innerHTML = "목표 " + fmt(target) + " 달성 &mdash; <b>" + fmt(total - target) + "</b> 룬 초과 확보";
     }else{
       var short = target - total;
-      msg.innerHTML = "<b>" + fmt(short) + "</b> 룬 부족 &middot; 레전드 8칸 알 기준 최소 <b>" +
+      msg.innerHTML = "목표 " + fmt(target) + " 까지 <b>" + fmt(short) + "</b> 룬 부족 &middot; 레전드 8칸 알 기준 최소 <b>" +
                       fmt(maxPerEgg > 0 ? Math.ceil(short / maxPerEgg) : 0) + "</b>회 더";
-      document.getElementById("needGrid").innerHTML = GRADES.map(function(g){
-        var per = Math.floor(fullEggOf(g.rune) * mAll);
-        var runs = per > 0 ? Math.ceil(short / per) : 0;
-        return '<div class="need-cell" title="' + g.name + ' 8칸 알 1회 = ' + fmt(per) + ' 룬">' +
-               '<span class="g">' + g.name + '</span><span class="n">' + fmt(runs) + '회</span></div>';
-      }).join("");
-      need.hidden = false;
     }
 
+    renderFilter();
     renderEggs(eggs, mAll);
+  }
+
+  function renderFilter(){
+    var q = state.q.trim().toLowerCase(), visible = 0;
+
+    function applyGroup(tid, tname, grades){
+      var shown = 0;
+      var nameHit = !q || tname.toLowerCase().indexOf(q) >= 0;
+      grades.forEach(function(gk){
+        var id = tid === RAINBOW ? RAINBOW : tid + "_" + gk;
+        var ok = nameHit &&
+                 (state.filter === "all" || (tid !== RAINBOW && state.filter === gk)) &&
+                 (!state.ownedOnly || state.counts[id] > 0);
+        groupsEl.querySelector('.card[data-id="' + id + '"]').hidden = !ok;
+        if(ok) shown++;
+      });
+      groupsEl.querySelector('.group[data-type="' + tid + '"]').hidden = shown === 0;
+      if(shown) visible++;
+    }
+
+    TYPES.forEach(function(t){ applyGroup(t.id, t.name, t.grades); });
+    /* 무지개는 등급이 없어 "전체" 에서만 보인다 */
+    applyGroup(RAINBOW, "무지개", [RAINBOW]);
+
+    document.getElementById("noMatch").hidden = visible > 0;
   }
 
   function renderEggs(eggs, mAll){
     var board = document.getElementById("eggs");
     if(!eggs.length){
-      board.innerHTML = '<div class="empty-state">주사기 개수를 입력하면 알 편성이 표시됩니다.</div>';
+      board.innerHTML = '<div class="empty">주사기 개수를 입력하면 알 편성이 표시됩니다.</div>';
       return;
     }
     var html = eggs.slice(0, MAX_CARDS).map(function(egg, i){
-      var n0 = i + 1;
+      var n0 = i + 1, idTxt = "EGG " + (n0 < 10 ? "0" + n0 : n0);
       if(egg.length === 1 && egg[0] === RAINBOW){
         return '<div class="egg egg-rainbow">' +
-          '<div class="egg-head"><span class="id">EGG ' + (n0 < 10 ? "0" + n0 : n0) + '</span>' +
+          '<div class="egg-head"><span class="id">' + idTxt + '</span>' +
           '<span class="yield">' + fmt(Math.floor(RAINBOW_RUNE * mAll)) + ' 룬</span></div>' +
-          '<div class="slots"><div class="slot">' + art(RAINBOW, "무지개") + '</div></div>' +
+          '<div class="slots"><div class="eslot">' + art(RAINBOW, "무지개") + '</div></div>' +
           '<div class="egg-note">무지개 단독 &middot; ' + fmt(RAINBOW_RUNE) + '</div>' +
         '</div>';
       }
@@ -1054,15 +974,15 @@ footer b{color:var(--dim);font-weight:600}
       for(var s = 0; s < CAP; s++){
         if(s < egg.length){
           var it = BY_ID[egg[s]];
-          slots += '<div class="slot" title="' + it.type.name + ' · ' + it.grade.name + '">' +
+          slots += '<div class="eslot" title="' + it.type.name + ' · ' + it.grade.name + '">' +
                    art(it.id, it.type.name + " " + it.grade.name) + '</div>';
         }else{
-          slots += '<div class="slot empty"></div>';
+          slots += '<div class="eslot empty"></div>';
         }
       }
-      var n = i + 1, exp = egg.length - 1;
+      var exp = egg.length - 1;
       return '<div class="egg"' + (egg.length === CAP ? ' data-full="1"' : '') + '>' +
-        '<div class="egg-head"><span class="id">EGG ' + (n < 10 ? "0" + n : n) + '</span>' +
+        '<div class="egg-head"><span class="id">' + idTxt + '</span>' +
         '<span class="yield">' + fmt(Math.floor(eggRune(sum, egg.length) * mAll)) + ' 룬</span></div>' +
         '<div class="slots">' + slots + '</div>' +
         '<div class="egg-note">' + egg.length + '/' + CAP + ' 칸 &middot; (10 + ' + fmt(sum) +
@@ -1071,7 +991,7 @@ footer b{color:var(--dim);font-weight:600}
     }).join("");
     if(eggs.length > MAX_CARDS){
       var rest = sumEggs(eggs.slice(MAX_CARDS));
-      html += '<div class="overflow-note">외 ' + fmt(eggs.length - MAX_CARDS) +
+      html += '<div class="overflow">외 ' + fmt(eggs.length - MAX_CARDS) +
               '개 알 (' + fmt(Math.floor(rest * mAll)) + ' 룬) &mdash; 카드 표시는 ' + MAX_CARDS + '개까지</div>';
     }
     board.innerHTML = html;
@@ -1087,8 +1007,8 @@ footer b{color:var(--dim);font-weight:600}
   function bump(id, d){ state.counts[id] = clamp(state.counts[id] + d); save(); render(); }
 
   groupsEl.addEventListener("click", function(ev){
-    var frame = ev.target.closest("[data-add]");
-    if(frame){ bump(frame.getAttribute("data-add"), 1); return; }
+    var slot = ev.target.closest("[data-add]");
+    if(slot){ bump(slot.getAttribute("data-add"), 1); return; }
     var b = ev.target.closest("button[data-d]");
     if(b) bump(b.getAttribute("data-k"), parseInt(b.getAttribute("data-d"), 10));
   });
@@ -1103,8 +1023,28 @@ footer b{color:var(--dim);font-weight:600}
     if(inp) inp.value = state.counts[inp.getAttribute("data-k")];
   }, true);
 
+  document.getElementById("controls").addEventListener("click", function(ev){
+    var b = ev.target.closest("button[data-f]");
+    if(!b) return;
+    state.filter = b.getAttribute("data-f");
+    Array.prototype.forEach.call(this.querySelectorAll("button[data-f]"), function(o){
+      o.setAttribute("aria-pressed", String(o === b));
+    });
+    save(); renderFilter();
+  });
+  document.getElementById("ownedOnly").addEventListener("click", function(){
+    state.ownedOnly = !state.ownedOnly;
+    this.setAttribute("aria-pressed", String(state.ownedOnly));
+    save(); renderFilter();
+  });
+  document.getElementById("q").addEventListener("input", function(e){
+    state.q = e.target.value; renderFilter();
+  });
   document.getElementById("ddak").addEventListener("change", function(e){
     state.ddak = e.target.checked; save(); render();
+  });
+  document.getElementById("fill8").addEventListener("change", function(e){
+    state.fill8 = e.target.checked; save(); render();
   });
   document.getElementById("bonus").addEventListener("input", function(e){
     var v = parseFloat(e.target.value);
@@ -1116,28 +1056,29 @@ footer b{color:var(--dim);font-weight:600}
     state.target = (isNaN(v) || v < 0) ? 0 : v;
     save(); render();
   });
+  document.getElementById("eggLimit").addEventListener("input", function(e){
+    var v = parseInt(e.target.value, 10);
+    state.eggs = (isNaN(v) || v < 0) ? 0 : Math.min(999, v);
+    save(); render();
+  });
   document.getElementById("reset").addEventListener("click", function(){
     ITEMS.forEach(function(it){ state.counts[it.id] = 0; });
     state.counts[RAINBOW] = 0;
     save(); render();
   });
 
+  /* 저장값을 컨트롤에 반영 */
   document.getElementById("ddak").checked = state.ddak;
   document.getElementById("fill8").checked = state.fill8;
-  document.getElementById("fill8").addEventListener("change", function(e){
-    state.fill8 = e.target.checked; save(); render();
-  });
   document.getElementById("bonus").value = state.bonus;
   document.getElementById("target").value = state.target;
   document.getElementById("eggLimit").value = state.eggs > 0 ? state.eggs : "";
-  document.getElementById("eggLimit").addEventListener("input", function(e){
-    var v = parseInt(e.target.value, 10);
-    state.eggs = (isNaN(v) || v < 0) ? 0 : Math.min(999, v);
-    save(); render();
+  document.getElementById("ownedOnly").setAttribute("aria-pressed", String(state.ownedOnly));
+  Array.prototype.forEach.call(document.querySelectorAll("button[data-f]"), function(o){
+    o.setAttribute("aria-pressed", String(o.getAttribute("data-f") === state.filter));
   });
 
   render();
 })();
 </script>
-
 </body></html>
