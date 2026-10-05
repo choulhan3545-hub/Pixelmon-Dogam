@@ -645,4 +645,70 @@ if(window.claude&&claude.use){
 }else{
   canEdit=false;
 }
+
+/* ================================================================
+   체크 옮기기
+   사이트는 서버를 쓰지 않아 체크가 브라우저마다 따로 저장된다.
+   기기를 옮길 때 쓰라고, 보유 목록을 짧은 코드 한 줄로 만든다.
+   152종을 한 칸당 1비트로 담아 19바이트 -> 글자 26개쯤 된다.
+   ================================================================ */
+function b64u(bytes){
+  let s="";
+  for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function unb64u(str){
+  str=str.replace(/-/g,"+").replace(/_/g,"/");
+  while(str.length%4)str+="=";
+  const bin=atob(str),out=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);
+  return out;
+}
+/* ITEMS 순서대로 보유 여부를 비트로 담는다. 순서가 바뀌면 옛 코드는 못 읽는다. */
+function checkCode(){
+  const bytes=new Uint8Array(Math.ceil(ITEMS.length/8));
+  ITEMS.forEach(function(it,i){ if(own[it.name])bytes[i>>3]|=1<<(i&7) });
+  return b64u(bytes);
+}
+function applyCode(code){
+  let bytes;
+  try{ bytes=unb64u(code) }catch(e){ return false }
+  if(bytes.length!==Math.ceil(ITEMS.length/8))return false;
+  ITEMS.forEach(function(it,i){ own[it.name]=!!(bytes[i>>3]&(1<<(i&7))) });
+  return true;
+}
+
+/* 주소에 ?restore=코드 가 붙어 있으면 그 체크를 가져온다 */
+(function(){
+  const m=/[?&]restore=([A-Za-z0-9_-]+)/.exec(location.search);
+  if(!m)return;
+  if(applyCode(m[1])){
+    try{localStorage.setItem(KEY,JSON.stringify(own))}catch(e){}
+    render();
+    flash("체크를 가져왔습니다");
+  }else{
+    alert("체크 코드를 읽지 못했습니다.\n주소가 중간에 잘렸는지 확인해 주세요.");
+  }
+  history.replaceState(null,"",location.pathname);
+})();
+
+/* 조작줄에 [체크 옮기기] 를 단다 */
+(function(){
+  const ref=$("#reset");
+  if(!ref)return;
+  const btn=document.createElement("button");
+  btn.id="codeBtn";
+  btn.textContent="체크 옮기기";
+  ref.parentNode.insertBefore(btn,ref);
+  btn.onclick=function(){
+    let got=0;
+    ITEMS.forEach(function(i){ if(own[i.name])got++ });
+    const url=location.origin+location.pathname+"?restore="+checkCode();
+    window.prompt(
+      "지금 체크 "+got+"종을 담은 주소입니다.\n"+
+      "복사해서 다른 기기(폰 등)에서 열면 체크가 그대로 옮겨집니다.\n"+
+      "카톡으로 자신에게 보내 두면 백업도 됩니다.",
+      url);
+  };
+})();
 </script>
