@@ -208,6 +208,21 @@ footer b{color:var(--dim);font-weight:600}
   .danger{margin-left:0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* 도감 사이트 네 페이지를 서로 오갈 수 있게 하는 줄.
+   페이지마다 색 변수 이름이 달라서 대체값을 함께 적어 둔다
+   (코디·룬·코스튬은 --surface/--edge, 에고는 --plate/--rule). */
+.sitenav{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.sitenav a{
+  font-family:"IBM Plex Sans KR","Malgun Gothic",sans-serif;
+  font-size:12.5px;font-weight:600;line-height:1.2;text-decoration:none;
+  color:var(--dim);
+  background:var(--surface,var(--plate,transparent));
+  border:2px solid var(--edge-soft,var(--rule-soft,currentColor));
+  padding:5px 11px;
+  transition:color .12s,border-color .12s;
+}
+.sitenav a:hover{color:var(--ink);border-color:var(--edge,var(--rule,currentColor))}
+.sitenav a.here{background:var(--ink);color:var(--ground);border-color:var(--ink);cursor:default}
 </style>
 
 <div class="wrap">
@@ -216,6 +231,12 @@ footer b{color:var(--dim);font-weight:600}
     <span class="eyebrow">Pixel Monster &middot; Awakening</span>
     <h1>각성 룬 계산기</h1>
     <p class="flow">주사기 &rarr; <b>알 부화(최대 8개)</b> &rarr; 카이저 던전 &rarr; 각성 룬</p>
+  <nav class="sitenav">
+    <a href="../">코디</a>
+    <a href="../ego/">에고무기</a>
+    <a class="here" aria-current="page">룬 계산기</a>
+    <a href="../costume/">코스튬</a>
+  </nav>
   </header>
 
   <section class="score">
