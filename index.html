@@ -344,12 +344,33 @@ button.prime:hover{color:#141020;border-color:var(--ink)}
   padding:10px 14px;margin-bottom:18px;font-size:12.5px;color:var(--dim);
 }
 .roinfo b{color:var(--ink)}
+/* 도감 사이트 네 페이지를 서로 오갈 수 있게 하는 줄.
+   페이지마다 색 변수 이름이 달라서 대체값을 함께 적어 둔다
+   (코디·룬·코스튬은 --surface/--edge, 에고는 --plate/--rule). */
+.sitenav{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.sitenav a{
+  font-family:"IBM Plex Sans KR","Malgun Gothic",sans-serif;
+  font-size:12.5px;font-weight:600;line-height:1.2;text-decoration:none;
+  color:var(--dim);
+  background:var(--surface,var(--plate,transparent));
+  border:2px solid var(--edge-soft,var(--rule-soft,currentColor));
+  padding:5px 11px;
+  transition:color .12s,border-color .12s;
+}
+.sitenav a:hover{color:var(--ink);border-color:var(--edge,var(--rule,currentColor))}
+.sitenav a.here{background:var(--ink);color:var(--ground);border-color:var(--ink);cursor:default}
 </style>
 <div class="wrap">
 
 <div class="mast">
   <div class="eyebrow">Pixel Monster &middot; Tamer</div>
   <h1>코디 도감</h1>
+  <nav class="sitenav">
+    <a class="here" aria-current="page">코디</a>
+    <a href="ego/">에고무기</a>
+    <a href="rune/">룬 계산기</a>
+    <a href="costume/">코스튬</a>
+  </nav>
 </div>
 
 <div id="panel-cody">
