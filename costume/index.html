@@ -832,7 +832,10 @@ crender();
    남이 ?edit=1 로 열어 고쳐도 자기 화면만 바뀐다 — 사이트는 그대로다.
    ================================================================ */
 const CAN_EDIT=/[?&]edit=1/.test(location.search)||location.protocol==="file:";
-const EKEY="pixmon-costume-edit-v1";
+/* 칸 배치가 바뀌면 옛 수정분은 자리가 어긋난다. 그래서 키에 판 번호를 단다.
+   2026-10-18 6페이지가 6칸 -> 16칸이 되면서 실제로 겪었다. */
+const EKEY="pixmon-costume-edit-v2";
+const EKEY_OLD=["pixmon-costume-edit-v1"];
 let cedits={};   /* 아직 사이트에 올리지 않은 수정분 */
 
 /* data.js 원본. 수정을 되돌릴 때 쓴다. */
@@ -851,11 +854,20 @@ function csrcTally(){
   $("#cSrcN").textContent=Object.keys(seen).length;
 }
 function eload(){
+  /* 옛 판에서 쓰던 수정분은 버린다. 그때 칸 번호가 지금과 다르다. */
+  EKEY_OLD.forEach(function(k){ try{localStorage.removeItem(k)}catch(e){} });
   try{
     const raw=localStorage.getItem(EKEY);
     if(raw)cedits=JSON.parse(raw)||{};
   }catch(e){cedits={}}
-  Object.keys(cedits).forEach(function(id){cinfo[id]=cedits[id]});
+  /* 지금 도감에 없는 칸 번호가 섞여 있으면 버린다 — 그대로 두면
+     엉뚱한 자리에 이름이 얹히고, 그 상태로 내려받으면 사이트까지 망가진다. */
+  let dropped=0;
+  Object.keys(cedits).forEach(function(id){
+    if(!COSBYID[id]){ delete cedits[id]; dropped++; return }
+    cinfo[id]=cedits[id];
+  });
+  if(dropped){ esave(); }
 }
 function esave(){
   try{localStorage.setItem(EKEY,JSON.stringify(cedits))}catch(e){}
