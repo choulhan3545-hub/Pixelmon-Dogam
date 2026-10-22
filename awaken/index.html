@@ -292,13 +292,12 @@ var f = {dash:"", atk:""};
 function isAll(m){ return m.atk.indexOf("총공") === 0 }
 function passFilter(m){
   if(f.dash === "돌진" && !m.dash) return false;
-  if(f.dash === "비돌진" && m.dash) return false;
   if(f.atk === "총공" && !isAll(m)) return false;
   if(f.atk === "일공" && m.atk !== "일공") return false;
   return true;
 }
 var FGROUPS = [
-  ["dash", "돌진", [["", "전체"], ["돌진", "돌진"], ["비돌진", "돌진 안 함"]],
+  ["dash", "돌진", [["", "전체"], ["돌진", "돌진"]],
     function(m, v){ return v === "" || (v === "돌진") === m.dash }],
   ["atk", "공격", [["", "전체"], ["총공", "총공"], ["일공", "일공"]],
     function(m, v){ return v === "" || (v === "총공" ? isAll(m) : m.atk === "일공") }]
