@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141020">
+<title>각성 몬스터 확인</title>
+<meta name="description" content="픽셀몬스터 각성 몬스터 — 알 이름으로 찾고, 누르면 자세한 정보를 봅니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ground:#141020;
+  --surface:#1d1730;
+  --raised:#271f3f;
+  --edge:#3a2f56;
+  --edge-soft:#2b2242;
+  --ink:#f2edfa;
+  --dim:#9c8fb8;
+  --dimmer:#6f6389;
+  --cyan:#6fd3e0;
+  --pink:#f273b0;
+  --gold:#ffb45c;
+  --green:#6fcf4a;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --title:"Do Hyeon","IBM Plex Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-size:14.5px;line-height:1.55;padding-bottom:60px;-webkit-font-smoothing:antialiased;
+}
+body.lock{overflow:hidden}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+
+.mast{padding:26px 0 14px;border-bottom:2px solid var(--edge-soft)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--dimmer);text-transform:uppercase}
+.mast h1{font-family:var(--title);font-weight:400;font-size:clamp(27px,6vw,36px);margin:2px 0 0;color:var(--cyan);line-height:1.2}
+.mast p{margin:6px 0 0;color:var(--dim);font-size:13.5px;word-break:keep-all}
+
+/* 사용법 한 줄 */
+.how{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:0;list-style:none;counter-reset:st}
+.how li{flex:1 1 200px;display:flex;align-items:center;gap:9px;background:var(--surface);border:2px solid var(--edge-soft);padding:8px 11px;font-size:13px;color:var(--dim);counter-increment:st;word-break:keep-all}
+.how li::before{content:counter(st);flex:none;width:20px;height:20px;display:grid;place-items:center;background:var(--cyan);color:var(--ground);font-family:var(--mono);font-size:12px;font-weight:600}
+.how b{color:var(--ink);font-weight:600}
+
+/* 검색 */
+.searchbar{position:sticky;top:0;z-index:5;background:var(--ground);padding:14px 0 10px}
+.search{position:relative}
+.search input{
+  width:100%;height:50px;padding:0 44px;background:var(--surface);
+  border:2px solid var(--edge);font-size:16px;border-radius:0;
+}
+.search input::placeholder{color:var(--dimmer)}
+.search input:focus{border-color:var(--cyan);outline:none}
+.search svg{position:absolute;left:14px;top:15px;width:20px;height:20px;color:var(--dim)}
+.search .clear{position:absolute;right:8px;top:9px;width:32px;height:32px;border:0;background:none;color:var(--dim);font-size:22px;display:none}
+.search.has .clear{display:block}
+.count{margin-top:8px;font-size:12.5px;color:var(--dimmer)}
+.count b{color:var(--ink);font-family:var(--mono)}
+
+/* 목록 — 알 이름과 몬스터 이름만 */
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-top:4px}
+.row{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:var(--surface);border:2px solid var(--edge-soft);padding:10px 12px;
+  transition:border-color .12s,background .12s;
+}
+.row:hover{border-color:var(--cyan);background:var(--raised)}
+.row .egg{flex:none;min-width:58px;font-family:var(--title);font-size:17px;color:var(--gold);line-height:1.2}
+.row .mon{flex:1;min-width:0;font-weight:500;word-break:keep-all;line-height:1.35}
+.row .go{flex:none;color:var(--dimmer);font-size:13px}
+.row mark{background:none;color:var(--cyan);font-weight:600}
+.empty{padding:46px 16px;text-align:center;color:var(--dim)}
+.empty b{display:block;font-family:var(--title);font-weight:400;font-size:22px;color:var(--ink);margin-bottom:6px}
+
+/* 자세히 보기 */
+.sheet{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,6,14,.72)}
+.sheet.on{display:flex}
+.panel{
+  position:relative;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;
+  background:var(--surface);border:2px solid var(--edge);
+  animation:up .18s ease-out;
+}
+@keyframes up{from{transform:translateY(14px);opacity:0}}
+.p-head{display:flex;gap:14px;align-items:flex-start;padding:18px 18px 14px;border-bottom:2px solid var(--edge-soft)}
+.orb{flex:none;width:54px;height:54px;display:grid;place-items:center;font-family:var(--title);font-size:24px;color:#1a1328;position:relative}
+.orb::after{content:"";position:absolute;right:-5px;bottom:-5px;width:16px;height:16px;border:2px solid var(--surface)}
+.orb[data-c="노랑"]::after{background:#ffd23f}.orb[data-c="초록"]::after{background:#5fd068}
+.orb[data-c="빨강"]::after{background:#ff5a5a}.orb[data-c="파랑"]::after{background:#4f8cff}
+.orb[data-c="보라"]::after{background:#b46bff}.orb[data-c="검정"]::after{background:#111;box-shadow:inset 0 0 0 1px #777}
+.orb[data-c="하양"]::after{background:#f6f6f6}
+.orb[data-c="반짝"]::after{background:conic-gradient(#ff5a5a,#ffd23f,#5fd068,#4f8cff,#b46bff,#ff5a5a)}
+.p-name{flex:1;min-width:0}
+.p-name .egg{font-size:13px;color:var(--dim)}
+.p-name .egg b{color:var(--gold);font-family:var(--title);font-weight:400;font-size:17px;margin-left:3px}
+.p-name h2{margin:1px 0 0;font-family:var(--title);font-weight:400;font-size:26px;line-height:1.2;word-break:keep-all}
+.close{flex:none;width:38px;height:38px;border:2px solid var(--edge);background:var(--raised);font-size:20px;line-height:1}
+.close:hover{border-color:var(--cyan)}
+
+.tags{display:flex;flex-wrap:wrap;gap:5px;padding:12px 18px 0}
+.tag{font-size:12px;padding:3px 8px;background:var(--raised);color:var(--dim);font-weight:500}
+.tag.el{color:#1a1328;font-weight:600}
+.tag.cc{background:#3a1f4a;color:#ffb1e0}
+.tag.ok{background:#1d3a2c;color:#8fe6b0}
+.tag.gold{background:#3d2e12;color:#ffcf7a}
+.tag.live{background:#47203a;color:#ff9fd0}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:14px 18px 0;border:2px solid var(--edge-soft)}
+.stat{padding:9px 11px 10px;border-right:2px solid var(--edge-soft)}
+.stat:last-child{border-right:0}
+.stat .k{display:block;font-size:11.5px;color:var(--dimmer);font-weight:600}
+.stat .v{font-family:var(--mono);font-size:21px;font-weight:600;line-height:1.3}
+.stat .v small{font-size:12px;color:var(--dim);margin-left:1px;font-weight:500}
+.stat .bar{height:5px;background:var(--edge-soft);margin-top:5px}
+.stat .bar i{display:block;height:100%;background:var(--cyan)}
+.stat.cd .bar i{background:var(--green)}
+.stat.cr .bar i{background:var(--gold)}
+.stat .note{display:block;font-size:11px;color:var(--dimmer);margin-top:3px}
+
+.fx{margin:14px 18px 0;padding:10px 12px;background:var(--raised);border-left:3px solid var(--cyan);word-break:keep-all}
+.fx.cc{border-left-color:var(--gold)}
+.fx.none{border-left-color:var(--edge);color:var(--dim)}
+.fx small{display:block;font-size:11.5px;color:var(--dimmer);font-weight:600;margin-bottom:2px}
+
+.info{display:grid;grid-template-columns:auto 1fr;gap:0 14px;margin:14px 18px 0;font-size:13.5px}
+.info dt,.info dd{padding:7px 0;border-bottom:1px dashed var(--edge-soft)}
+.info dt{color:var(--dimmer)}
+.info dd{margin:0}
+.info dd em{font-style:normal;font-size:12px;color:var(--dimmer);margin-left:4px}
+
+.p-foot{display:flex;gap:6px;padding:16px 18px 18px}
+.p-foot button{flex:1;height:42px;background:var(--raised);border:2px solid var(--edge-soft);font-size:13px;font-weight:600;color:var(--dim)}
+.p-foot button:hover{color:var(--ink);border-color:var(--edge)}
+.p-foot button:disabled{opacity:.35;cursor:default}
+.p-foot .back{flex:1.3;background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.p-foot .back:hover{color:var(--ground)}
+
+footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);font-size:12.5px;color:var(--dim);line-height:1.8}
+footer b{color:var(--ink);font-weight:600}
+
+@media (max-width:560px){
+  .list{grid-template-columns:1fr}
+  .sheet{align-items:flex-end;padding:0}
+  .panel{max-width:none;max-height:92vh;border-width:2px 0 0}
+  .p-name h2{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 도감 사이트 페이지를 서로 오갈 수 있게 하는 줄.
+   페이지마다 색 변수 이름이 달라서 대체값을 함께 적어 둔다
+   (코디·룬·코스튬·각성몹·저승은 --surface/--edge, 에고는 --plate/--rule). */
+.sitenav{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.sitenav a{
+  font-family:"IBM Plex Sans KR","Malgun Gothic",sans-serif;
+  font-size:12.5px;font-weight:600;line-height:1.2;text-decoration:none;
+  color:var(--dim);
+  background:var(--surface,var(--plate,transparent));
+  border:2px solid var(--edge-soft,var(--rule-soft,currentColor));
+  padding:5px 11px;
+  transition:color .12s,border-color .12s;
+}
+.sitenav a:hover{color:var(--ink);border-color:var(--edge,var(--rule,currentColor))}
+.sitenav a.here{background:var(--ink);color:var(--ground);border-color:var(--ink);cursor:default}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <span class="eyebrow">Pixel Monster &middot; Awakening</span>
+  <h1>각성 몬스터 확인</h1>
+  <p>알 이름으로 어떤 몬스터가 각성하는지 찾아보세요. 누르면 자세한 정보가 나옵니다.</p>
+  <nav class="sitenav">
+    <a href="../">홈</a>
+    <a href="../cody/">코디</a>
+    <a href="../ego/">에고무기</a>
+    <a href="../rune/">룬 계산기</a>
+    <a href="../costume/">코스튬</a>
+    <a class="here" aria-current="page">각성몹</a>
+    <a href="../underworld/">저승 지도</a>
+  </nav>
+</header>
+
+<ol class="how">
+  <li><span><b>검색</b> — 알 이름이나 몬스터 이름을 치세요. 초성도 됩니다 (<b>ㅇㅇ</b> → 용인)</span></li>
+  <li><span><b>선택</b> — 찾은 몬스터를 누르면 속성 · 상태이상 · 코스트 · 쿨타임이 나옵니다</span></li>
+</ol>
+
+<div class="searchbar">
+  <div class="search" id="searchBox">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="알 이름이나 몬스터 이름" aria-label="알 이름이나 몬스터 이름으로 찾기">
+    <button class="clear" id="qClear" type="button" aria-label="지우기">×</button>
+  </div>
+  <div class="count" id="count"></div>
+</div>
+
+<main class="list" id="list" aria-live="polite"></main>
+
+<footer>
+  원본: 구글 시트 <b>각성몹 정리(초라카)</b> — 2026-10-19 저장본을 옮겨 왔습니다.<br>
+  틀린 내용이 있으면 알려 주세요.
+</footer>
+
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="pName">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+"use strict";
+
+// data.js 칸 순서 그대로
+var M = (window.AWK || []).map(function(r, i){
+  return {
+    i:i, season:r[0], egg:r[1], name:r[2], color:r[3], el:r[4],
+    cc: r[5] === "X" ? [] : r[5].split(/\s*,\s*/),
+    atk:r[6], ench:r[7] === "O", fx:r[8] === "-" ? "" : r[8],
+    word:r[9] === "O", ring:r[10] === "O",
+    get: r[11] === 20 ? "마일리지" : r[11] === "황금알" ? "황금알" : "진행중",
+    cost:r[12], dash:r[13] === "O", cd:r[14], crit:r[15], ccAdd:r[16] === 1
+  };
+});
+
+var EL = {
+  "불":"#ff8a65","얼음":"#8fd8ff","빛":"#ffe08a","땅":"#d4a373","노말":"#c9c1d8",
+  "바람":"#7ee0b0","어둠":"#b892ff","기계":"#a9bccf","용":"#ff86a6","전기":"#ffe94d"
+};
+var GET_LABEL = {"마일리지":"알 마일리지 20","황금알":"황금알","진행중":"시즌 진행 중 (아직 미정)"};
+function maxOf(k){ return Math.max.apply(null, M.map(function(m){return m[k]})) || 1 }
+var LATEST = maxOf("season"), MAXC = maxOf("cost"), MAXD = maxOf("cd"), MAXR = maxOf("crit");
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"]/g, function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+// 초성 검색: "ㅇㅇ" → 용인
+var CHO = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+function chosung(s){
+  var o = "";
+  for(var k = 0; k < s.length; k++){
+    var c = s.charCodeAt(k) - 0xAC00;
+    o += (c >= 0 && c < 11172) ? CHO[Math.floor(c / 588)] : s[k];
+  }
+  return o;
+}
+function norm(s){return s.toLowerCase().replace(/[\s()]/g, "")}
+M.forEach(function(m){
+  m.kEgg = norm(m.egg); m.kName = norm(m.name);
+  m.cEgg = chosung(m.kEgg); m.cName = chosung(m.kName);
+});
+
+/* ---------- 목록 ---------- */
+// 알 이름이 맞으면 먼저, 그다음 몬스터 이름, 앞에서부터 맞는 것 먼저
+function score(m, q){
+  var cho = /^[ㄱ-ㅎ]+$/.test(q);
+  var e = cho ? m.cEgg : m.kEgg, n = cho ? m.cName : m.kName;
+  if(e === q) return 0;
+  if(e.indexOf(q) === 0) return 1;
+  if(n.indexOf(q) === 0) return 2;
+  if(e.indexOf(q) > 0) return 3;
+  if(n.indexOf(q) > 0) return 4;
+  return -1;
+}
+function hl(text, q){
+  if(!q || /^[ㄱ-ㅎ]+$/.test(q)) return esc(text);
+  var t = text.toLowerCase(), k = t.indexOf(q);
+  return k < 0 ? esc(text) : esc(text.slice(0, k)) + "<mark>" + esc(text.slice(k, k + q.length)) + "</mark>" + esc(text.slice(k + q.length));
+}
+function renderList(){
+  var raw = $("q").value, q = norm(raw);
+  $("searchBox").classList.toggle("has", !!raw);
+  var list = M;
+  if(q){
+    list = M.map(function(m){ return [score(m, q), m] })
+            .filter(function(p){ return p[0] >= 0 })
+            .sort(function(a, b){ return a[0] - b[0] || a[1].i - b[1].i })
+            .map(function(p){ return p[1] });
+  }
+  $("count").innerHTML = q
+    ? '<b>' + list.length + '</b>마리 찾음' + (list.length === 1 ? ' — Enter 를 누르면 바로 열립니다' : '')
+    : '전체 <b>' + M.length + '</b>마리 · 왼쪽 노란 글자가 <b>알 이름</b>, 오른쪽이 각성 몬스터';
+  if(!list.length){
+    $("list").innerHTML = '<div class="empty"><b>찾는 몬스터가 없어요</b>글자를 줄이거나 초성으로 쳐 보세요.</div>';
+    return list;
+  }
+  $("list").innerHTML = list.map(function(m){
+    return '<button class="row" type="button" data-i="' + m.i + '">' +
+      '<span class="egg">' + hl(m.egg, q) + '</span>' +
+      '<span class="mon">' + hl(m.name, q) + '</span>' +
+      '<span class="go" aria-hidden="true">›</span></button>';
+  }).join("");
+  return list;
+}
+
+/* ---------- 자세히 보기 ---------- */
+var shown = [], cur = -1, lastFocus = null;
+function bar(v, max){ return '<div class="bar"><i style="width:' + Math.max(4, Math.round(v / max * 100)) + '%"></i></div>' }
+function yn(v){ return v ? "있음" : "없음" }
+function panelHtml(m, pos){
+  var tags = '<span class="tag el" style="background:' + EL[m.el] + '">' + esc(m.el) + ' 속성</span>';
+  m.cc.forEach(function(c){ tags += '<span class="tag cc">' + esc(c) + '</span>' });
+  if(m.ccAdd) tags += '<span class="tag cc">+기절 (인챈트)</span>';
+  tags += m.get === "황금알" ? '<span class="tag gold">황금알</span>'
+        : m.get === "진행중" ? '<span class="tag live">시즌 진행 중</span>'
+        : '<span class="tag">마일리지 20</span>';
+  if(m.ench) tags += '<span class="tag ok">인챈트 가능</span>';
+  if(m.dash) tags += '<span class="tag">돌진</span>';
+
+  var fx = !m.ench ? '<div class="fx none"><small>인챈트 효과</small>인챈트 없음</div>'
+    : m.fx ? '<div class="fx' + (m.ccAdd ? ' cc' : '') + '"><small>인챈트 효과' + (m.ccAdd ? ' · 인챈트하면 상태이상이 붙습니다' : '') + '</small>' + esc(m.fx) + '</div>'
+    : '<div class="fx none"><small>인챈트 효과</small>인챈트는 되지만 효과 설명이 아직 없습니다.</div>';
+
+  return '<div class="p-head">' +
+      '<span class="orb" data-c="' + esc(m.color) + '" style="background:' + EL[m.el] + '" aria-hidden="true">' + esc(m.name.charAt(0)) + '</span>' +
+      '<div class="p-name"><div class="egg">알 이름<b>' + esc(m.egg) + '</b></div><h2 id="pName">' + esc(m.name) + '</h2></div>' +
+      '<button class="close" id="pClose" type="button" aria-label="닫기">×</button>' +
+    '</div>' +
+    '<div class="tags">' + tags + '</div>' +
+    '<div class="stats">' +
+      '<div class="stat"><span class="k">코스트</span><span class="v">' + m.cost + '</span>' + bar(m.cost, MAXC) + '<span class="note">낮을수록 가벼움</span></div>' +
+      '<div class="stat cd"><span class="k">기본 쿨타임</span><span class="v">' + m.cd + '<small>초</small></span>' + bar(m.cd, MAXD) + '<span class="note">짧을수록 자주 씀</span></div>' +
+      '<div class="stat cr"><span class="k">기본 크리티컬</span><span class="v">' + m.crit + '<small>%</small></span>' + bar(m.crit, MAXR) + '<span class="note">' + (m.crit ? "높을수록 좋음" : "없음") + '</span></div>' +
+    '</div>' + fx +
+    '<dl class="info">' +
+      '<dt>시즌</dt><dd>' + m.season + (m.season === LATEST ? '<em>진행 중</em>' : '') + '</dd>' +
+      '<dt>속성</dt><dd>' + esc(m.el) + '</dd>' +
+      '<dt>색</dt><dd>' + esc(m.color) + '</dd>' +
+      '<dt>각성 스킬 상태이상</dt><dd>' + (m.cc.length ? esc(m.cc.join(", ")) : "없음") + (m.ccAdd ? '<em>인챈트하면 기절</em>' : '') + '</dd>' +
+      '<dt>공격 분류</dt><dd>' + esc(m.atk) + '</dd>' +
+      '<dt>얻는 곳</dt><dd>' + GET_LABEL[m.get] + '</dd>' +
+      '<dt>돌진</dt><dd>' + yn(m.dash) + '</dd>' +
+      '<dt>각성어</dt><dd>' + yn(m.word) + '</dd>' +
+      '<dt>각성 반지</dt><dd>' + yn(m.ring) + '</dd>' +
+    '</dl>' +
+    '<div class="p-foot">' +
+      '<button id="pPrev" type="button"' + (pos <= 0 ? ' disabled' : '') + '>‹ 이전</button>' +
+      '<button class="back" id="pBack" type="button">목록으로</button>' +
+      '<button id="pNext" type="button"' + (pos >= shown.length - 1 ? ' disabled' : '') + '>다음 ›</button>' +
+    '</div>';
+}
+function open(i, fromHash){
+  var m = M[i]; if(!m) return;
+  var pos = shown.indexOf(m);
+  if(pos < 0){ shown = M.slice(); pos = i }
+  cur = pos;
+  if(!$("sheet").classList.contains("on")) lastFocus = document.activeElement;
+  $("panel").innerHTML = panelHtml(m, pos);
+  $("panel").scrollTop = 0;
+  $("sheet").classList.add("on"); document.body.classList.add("lock");
+  $("pClose").addEventListener("click", close);
+  $("pBack").addEventListener("click", close);
+  $("pPrev").addEventListener("click", function(){ step(-1) });
+  $("pNext").addEventListener("click", function(){ step(1) });
+  $("pClose").focus();
+  // 주소에 몬스터를 남겨 두면 그 주소를 보내 줄 수 있고, 뒤로 가기로 닫힌다
+  var h = "#" + encodeURIComponent(m.name);
+  if(!fromHash && location.hash !== h){
+    if($("sheet").dataset.pushed) history.replaceState(null, "", h);
+    else { history.pushState(null, "", h); $("sheet").dataset.pushed = "1" }
+  }
+}
+function step(d){ var m = shown[cur + d]; if(m) open(m.i) }
+function hideSheet(){
+  $("sheet").classList.remove("on"); document.body.classList.remove("lock");
+  delete $("sheet").dataset.pushed;
+  if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+function close(){
+  if($("sheet").dataset.pushed) history.back();   // popstate 에서 닫힘
+  else { hideSheet(); if(location.hash) history.replaceState(null, "", location.pathname + location.search) }
+}
+function fromHash(){
+  var name = decodeURIComponent(location.hash.slice(1));
+  var m = name && M.filter(function(x){ return x.name === name })[0];
+  if(m) open(m.i, true); else if($("sheet").classList.contains("on")) hideSheet();
+}
+
+/* ---------- 이벤트 ---------- */
+$("q").addEventListener("input", function(){ shown = renderList() });
+$("q").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); if(shown.length) open(shown[0].i) }
+});
+$("qClear").addEventListener("click", function(){ $("q").value = ""; shown = renderList(); $("q").focus() });
+$("list").addEventListener("click", function(e){
+  var b = e.target.closest(".row"); if(b) open(+b.getAttribute("data-i"));
+});
+$("sheet").addEventListener("click", function(e){ if(e.target === this) close() });
+document.addEventListener("keydown", function(e){
+  if(!$("sheet").classList.contains("on")) return;
+  if(e.key === "Escape") close();
+  else if(e.key === "ArrowLeft") step(-1);
+  else if(e.key === "ArrowRight") step(1);
+});
+window.addEventListener("popstate", function(){ delete $("sheet").dataset.pushed; fromHash() });
+
+if(!M.length){
+  $("list").innerHTML = '<div class="empty"><b>몬스터 정보를 읽지 못했습니다</b>같은 폴더의 data.js 가 있는지 확인해 주세요.</div>';
+  return;
+}
+shown = renderList();
+if(location.hash) fromHash();
+})();
+</script>
+</body>
+</html>
