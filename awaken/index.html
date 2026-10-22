@@ -230,7 +230,6 @@ footer b{color:var(--ink);font-weight:600}
 </div>
 
 <script src="data.js"></script>
-<script src="img.js"></script>
 <script>
 (function(){
 "use strict";
@@ -362,6 +361,37 @@ function bar(v, max){ return '<div class="bar"><i style="width:' + Math.max(4, M
 function yn(v){ return v ? "있음" : "없음" }
 // 그림이 있으면 그림을, 없으면 이름 첫 글자 칸을 보여 준다.
 // 도트 그림이라 화면 픽셀의 정수 배로만 키운다 (소수 배율이면 점이 깨진다).
+/* ---------- 진화 도감에서 그림 가져오기 ----------
+   진화 도감(../evolution/)에 이름이 같은 몬스터가 등록되면 그 그림을 자동으로 쓴다.
+   진화 도감의 data.js(이름 · id)와 img.js(id -> 그림)를 팝업을 처음 열 때 불러온다. */
+var evoByName = null, evoState = 0;   // 0 안 불러옴 · 1 불러오는 중 · 2 끝
+function evoPic(name){
+  var id = evoByName && evoByName[name];
+  return id && window.IMG && window.IMG[id] || "";
+}
+function loadEvo(done){
+  if(evoState === 2) return done();
+  if(evoState === 1) return;
+  evoState = 1;
+  function add(src, next){
+    var s = document.createElement("script");
+    s.src = src; s.onload = next; s.onerror = function(){ evoState = 2 };
+    document.head.appendChild(s);
+  }
+  add("../evolution/data.js", function(){
+    add("../evolution/img.js", function(){
+      evoByName = {};
+      ((window.EVO && window.EVO.NODES) || []).forEach(function(n){ if(n.id !== "egg") evoByName[n.name] = n.id });
+      evoState = 2; done();
+    });
+  });
+}
+// 그림이 늦게 도착하면 열려 있는 팝업의 그림 칸만 바꾼다
+function refreshOrb(){
+  var m = shown[cur], old = document.querySelector("#panel .orb");
+  if(!m || !old || !$("sheet").classList.contains("on") || !evoPic(m.name)) return;
+  old.outerHTML = orbHtml(m); sizePic();
+}
 function sizePic(){
   var im = document.querySelector("#panel .orb.pic img");
   if(!im) return;
@@ -369,7 +399,7 @@ function sizePic(){
   if(im.complete && im.naturalWidth) go(); else im.addEventListener("load", go);
 }
 function orbHtml(m){
-  var src = window.AWIMG && window.AWIMG[m.name];
+  var src = evoPic(m.name);
   if(src){
     var dpr = window.devicePixelRatio || 1, k = Math.max(1, Math.round(3 * dpr)) / dpr;
     return '<span class="orb pic" data-c="' + esc(m.color) + '" aria-hidden="true"><img alt="" src="' + src + '" data-k="' + k + '"></span>';
@@ -426,6 +456,7 @@ function open(i, fromHash){
   if(!$("sheet").classList.contains("on")) lastFocus = document.activeElement;
   $("panel").innerHTML = panelHtml(m, pos);
   sizePic();
+  loadEvo(refreshOrb);
   $("panel").scrollTop = 0;
   $("sheet").classList.add("on"); document.body.classList.add("lock");
   $("pClose").addEventListener("click", close);
