@@ -63,6 +63,14 @@ button{cursor:pointer}
 .search svg{position:absolute;left:14px;top:15px;width:20px;height:20px;color:var(--dim)}
 .search .clear{position:absolute;right:8px;top:9px;width:32px;height:32px;border:0;background:none;color:var(--dim);font-size:22px;display:none}
 .search.has .clear{display:block}
+.filters{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px}
+.fg{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.fg .lab{font-size:12px;color:var(--dimmer);font-weight:600;margin-right:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;background:var(--surface);border:2px solid var(--edge-soft);font-size:13.5px;color:var(--dim);font-weight:500;white-space:nowrap}
+.chip em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--dimmer)}
+.chip:hover{color:var(--ink);border-color:var(--edge)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink);font-weight:600}
+.chip[aria-pressed="true"] em{color:#5b4f78}
 .count{margin-top:8px;font-size:12.5px;color:var(--dimmer)}
 .count b{color:var(--ink);font-family:var(--mono)}
 
@@ -191,7 +199,7 @@ footer b{color:var(--ink);font-weight:600}
 
 <ol class="how">
   <li><span><b>검색</b> — 알 이름이나 몬스터 이름을 치세요. 초성도 됩니다 (<b>ㅇㅇ</b> → 용인)</span></li>
-  <li><span><b>선택</b> — 찾은 몬스터를 누르면 속성 · 상태이상 · 코스트 · 쿨타임이 나옵니다</span></li>
+  <li><span><b>거르기·선택</b> — 돌진 · 총공/일공으로 좁히고, 몬스터를 누르면 속성 · 상태이상 · 코스트 · 쿨타임이 나옵니다</span></li>
 </ol>
 
 <div class="searchbar">
@@ -200,6 +208,7 @@ footer b{color:var(--ink);font-weight:600}
     <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="알 이름이나 몬스터 이름" aria-label="알 이름이나 몬스터 이름으로 찾기">
     <button class="clear" id="qClear" type="button" aria-label="지우기">×</button>
   </div>
+  <div class="filters" id="filters"></div>
   <div class="count" id="count"></div>
 </div>
 
@@ -277,21 +286,61 @@ function hl(text, q){
   var t = text.toLowerCase(), k = t.indexOf(q);
   return k < 0 ? esc(text) : esc(text.slice(0, k)) + "<mark>" + esc(text.slice(k, k + q.length)) + "</mark>" + esc(text.slice(k + q.length));
 }
+/* ---------- 돌진 · 공격 거르기 ---------- */
+var f = {dash:"", atk:""};
+// 총공+힐 은 총공으로 센다 (시트에는 1마리뿐)
+function isAll(m){ return m.atk.indexOf("총공") === 0 }
+function passFilter(m){
+  if(f.dash === "돌진" && !m.dash) return false;
+  if(f.dash === "비돌진" && m.dash) return false;
+  if(f.atk === "총공" && !isAll(m)) return false;
+  if(f.atk === "일공" && m.atk !== "일공") return false;
+  return true;
+}
+var FGROUPS = [
+  ["dash", "돌진", [["", "전체"], ["돌진", "돌진"], ["비돌진", "돌진 안 함"]],
+    function(m, v){ return v === "" || (v === "돌진") === m.dash }],
+  ["atk", "공격", [["", "전체"], ["총공", "총공"], ["일공", "일공"]],
+    function(m, v){ return v === "" || (v === "총공" ? isAll(m) : m.atk === "일공") }]
+];
+function buildFilters(){
+  var box = $("filters"); box.innerHTML = "";
+  FGROUPS.forEach(function(g){
+    var wrap = document.createElement("div"); wrap.className = "fg";
+    wrap.innerHTML = '<span class="lab">' + g[1] + '</span>';
+    g[2].forEach(function(o){
+      var n = M.filter(function(m){ return g[3](m, o[0]) }).length;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip";
+      b.setAttribute("aria-pressed", f[g[0]] === o[0] ? "true" : "false");
+      b.innerHTML = o[1] + ' <em>' + n + '</em>';
+      b.addEventListener("click", function(){
+        f[g[0]] = f[g[0]] === o[0] ? "" : o[0];
+        buildFilters(); shown = renderList();
+      });
+      wrap.appendChild(b);
+    });
+    box.appendChild(wrap);
+  });
+}
+
 function renderList(){
   var raw = $("q").value, q = norm(raw);
   $("searchBox").classList.toggle("has", !!raw);
-  var list = M;
+  var list = M.filter(passFilter);
   if(q){
-    list = M.map(function(m){ return [score(m, q), m] })
+    list = list.map(function(m){ return [score(m, q), m] })
             .filter(function(p){ return p[0] >= 0 })
             .sort(function(a, b){ return a[0] - b[0] || a[1].i - b[1].i })
             .map(function(p){ return p[1] });
   }
-  $("count").innerHTML = q
+  var narrowed = q || f.dash || f.atk;
+  $("count").innerHTML = narrowed
     ? '<b>' + list.length + '</b>마리 찾음' + (list.length === 1 ? ' — Enter 를 누르면 바로 열립니다' : '')
     : '전체 <b>' + M.length + '</b>마리 · 왼쪽 노란 글자가 <b>알 이름</b>, 오른쪽이 각성 몬스터';
   if(!list.length){
-    $("list").innerHTML = '<div class="empty"><b>찾는 몬스터가 없어요</b>글자를 줄이거나 초성으로 쳐 보세요.</div>';
+    $("list").innerHTML = '<div class="empty"><b>찾는 몬스터가 없어요</b>글자를 줄이거나 초성으로 쳐 보세요.' +
+      ((f.dash || f.atk) ? '<br>돌진 · 공격 조건을 <b>전체</b>로 돌려 보는 것도 방법입니다.' : '') + '</div>';
     return list;
   }
   $("list").innerHTML = list.map(function(m){
@@ -408,6 +457,7 @@ if(!M.length){
   $("list").innerHTML = '<div class="empty"><b>몬스터 정보를 읽지 못했습니다</b>같은 폴더의 data.js 가 있는지 확인해 주세요.</div>';
   return;
 }
+buildFilters();
 shown = renderList();
 if(location.hash) fromHash();
 })();
