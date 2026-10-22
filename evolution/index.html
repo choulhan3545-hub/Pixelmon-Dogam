@@ -59,8 +59,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .btn:hover{color:var(--ink);border-color:var(--dim)}
 .hint{font-size:12px;color:var(--dimmer);font-family:var(--mono)}
 
-.scroller{overflow:auto;padding:22px 4px 30px;-webkit-overflow-scrolling:touch}
-#tree{width:max-content}
+.scroller{overflow:auto;padding:22px 4px 30px;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+#tree{width:max-content;zoom:var(--k,1)}
 #tree ul{list-style:none;margin:0;padding:0}
 #tree li{display:flex;align-items:center;position:relative}
 #tree li>ul{display:flex;flex-direction:column}
@@ -97,40 +97,9 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .nm img{height:16px;width:auto}
 .assumed .nm::after{content:"?";color:var(--gold);font-family:var(--mono);font-size:11px}
 /* 칸은 최소 너비만 정하고 큰 그림이면 그만큼 넓어진다. 이름은 최소 너비 안에서 줄바꿈 */
-.node{width:auto;min-width:calc(118px * var(--k,1))}
-.nm{max-width:calc(118px * var(--k,1));margin-left:auto;margin-right:auto}
+.node{width:auto;min-width:118px;-webkit-tap-highlight-color:transparent}
+.nm{max-width:118px;margin-left:auto;margin-right:auto}
 
-/* ── 폰: 세로 목록형 트리 ──
-   한 줄에 몬스터 하나(왼쪽 그림, 오른쪽 이름·수치). 갈래만 들여쓰고, 외길(자식 하나)은 바로 아래로 잇는다. */
-@media (max-width:700px){
-  .scroller{padding:12px 0 24px}
-  #tree{width:auto;--art:calc(88px * var(--k,1))}
-  #tree li{display:block}
-  #tree li>ul{display:block}
-  #tree li.has>ul{margin-left:12px}
-  #tree li>ul>li{padding:0 0 0 12px}
-  #tree li>ul>li::before{display:none}
-  #tree li>ul>li::after,#tree li>ul>li:first-child::after{top:0;bottom:0}
-  #tree li>ul>li:last-child::after{display:none}
-  #tree li.has>.node{margin-right:0}
-  #tree li.has>.node::after{display:none}
-  /* 갈래: 노드 앞 가로줄 + 마지막 자식은 세로줄을 노드 가운데까지만 */
-  #tree li>ul>li>.node::before{content:"";position:absolute;left:-14px;top:50%;width:12px;border-top:3px solid var(--line)}
-  #tree li>ul>li:last-child>.node::after{content:"";display:block;position:absolute;left:-14px;right:auto;top:-2px;width:0;height:calc(50% + 2px);border-top:0;border-left:3px solid var(--line)}
-  /* 외길 */
-  #tree li.has>ul.one{margin-left:0}
-  #tree ul.one>li{padding:10px 0 0 0}
-  #tree ul.one>li::after{display:none}
-  #tree ul.one>li>.node::before{display:none}
-  #tree li>ul.one>li:last-child>.node::after{content:"";display:block;position:absolute;left:calc(var(--art) / 2 + 3px);right:auto;top:-12px;width:0;height:10px;border-top:0;border-left:3px solid var(--line)}
-
-  .node{display:grid;grid-template-columns:var(--art) minmax(0,1fr);column-gap:10px;align-items:center;text-align:left;width:100%;min-width:0;padding:4px;margin:2px 0}
-  .art{grid-column:1;grid-row:1/3;min-height:0;align-items:center}
-  .node{-webkit-tap-highlight-color:transparent}
-  .nm{grid-column:2;grid-row:1;justify-content:flex-start;max-width:none;margin:0;font-size:14px;overflow-wrap:anywhere}
-  .top{grid-column:2;grid-row:2;justify-content:flex-start;min-height:0;flex-wrap:wrap;gap:2px 6px}
-  .top:empty{display:none}
-}
 
 
 /* 팝업 */
@@ -221,25 +190,22 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   // ── 도트 그림 크기 ──
   // 점 하나가 실제 화면 픽셀로 정수 칸이 되도록 맞춘다. 소수 배율이면 점 크기가 들쭉날쭉해진다.
   // (윈도우 배율 125% 같은 devicePixelRatio 까지 계산)
-  var K=1, DOT=4, MOB=window.matchMedia("(max-width:700px)");   // DOT = 기본 크기에서 점 하나의 화면 크기(px)
+  var K=1, DOT=4;   // DOT = 기본 크기에서 점 하나의 화면 크기(px)
   function fit(im){
     var w=im.naturalWidth,h=im.naturalHeight; if(!w) return;
-    var dpr=window.devicePixelRatio||1, d;
-    if(im.dataset.id==="egg"){ im.style.width=Math.round(28*K)+"px"; im.style.height="auto"; return; }
+    var dpr=window.devicePixelRatio||1, d, zm=1;
+    if(im.dataset.id==="egg"){ im.style.width="28px"; im.style.height="auto"; return; }
     if(im.dataset.box){
       // 팝업: 정해진 칸 안에 들어가는 가장 큰 정수 배율
       var box=parseFloat(im.dataset.box);
       d=Math.max(1,Math.min(Math.floor(Math.min(box*dpr/w,box*dpr/h)),Math.round(8*dpr)));
     } else {
-      // 진화표: 모든 몬스터를 같은 배율로 (게임처럼 큰 몬스터는 크게)
-      d=Math.max(1,Math.round(DOT*K*dpr));
-      // 폰 목록형: 점 2px 기준으로 모두 같은 배율. 칸(88px)을 넘는 아주 큰 몬스터 몇 마리만 한두 단계 줄인다.
-      // (예전에는 칸에 맞춰 개별로 키우고 줄여서 큰 몬스터가 작은 몬스터보다 작아 보였다)
-      if(MOB.matches){
-        d=Math.max(1,Math.min(Math.round(2*K*dpr),Math.floor(88*K*dpr/w)));
-      }
+      // 진화표: 모든 몬스터를 같은 배율로 (게임처럼 큰 몬스터는 크게).
+      // 트리 전체에 CSS zoom(K) 이 걸려 있으므로, 그림 크기는 zoom 으로 곱해진 뒤에도
+      // 화면 픽셀의 정수 배가 되도록 K 로 나눠 둔다.
+      d=Math.max(1,Math.round(DOT*K*dpr)); zm=K;
     }
-    im.style.width=(w*d/dpr)+"px"; im.style.height=(h*d/dpr)+"px";
+    im.style.width=(w*d/dpr/zm)+"px"; im.style.height=(h*d/dpr/zm)+"px";
   }
   function onLoad(im,f){ if(im.complete&&im.naturalWidth) f(); else im.addEventListener("load",f); }
   function fitAll(){ Array.prototype.forEach.call(document.querySelectorAll(".art img,.bigart img"),fit); }
@@ -265,7 +231,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     }
     li.appendChild(b);
     if(kids[n.id].length){
-      var ul=el("ul",kids[n.id].length===1?"one":"");
+      var ul=el("ul");
       kids[n.id].forEach(function(c){ul.appendChild(build(c));});
       li.appendChild(ul);
     }
@@ -348,13 +314,31 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   });
 
   // ── 크기 ──
-  var z=1;
-  try{z=parseFloat(localStorage.getItem("evoZoom"))||1;}catch(e){}
-  // 크기 단추는 칸 너비와 그림 목표 크기만 바꾼다 (글자는 그대로, 그림은 다시 정수 배율로)
-  function setZ(v){z=Math.round(Math.max(.5,Math.min(1.75,v))*100)/100;K=z;tree.style.setProperty("--k",z);fitAll();try{localStorage.setItem("evoZoom",z);}catch(e){}}
+  // 폰은 처음에 작게 열어 가지가 한눈에 들어오게 한다. 단추나 두 손가락 벌리기로 키운다.
+  var z=innerWidth<700?.7:1, saved=null;
+  try{saved=parseFloat(localStorage.getItem("evoZoom"));}catch(e){}
+  if(saved>0) z=saved;
+  function setZ(v){z=Math.round(Math.max(.4,Math.min(1.75,v))*100)/100;K=z;tree.style.setProperty("--k",z);fitAll();try{localStorage.setItem("evoZoom",z);}catch(e){}}
   setZ(z);
-  document.getElementById("zo").onclick=function(){setZ(z-.25);};
-  document.getElementById("zi").onclick=function(){setZ(z+.25);};
+  document.getElementById("zo").onclick=function(){setZ(z-.15);};
+  document.getElementById("zi").onclick=function(){setZ(z+.15);};
+
+  // 두 손가락으로 벌리거나 모으면 크기 조절 (브라우저 확대는 도트를 뭉개므로 직접 처리)
+  var sc=document.querySelector(".scroller"), pinch=null;
+  function dist(t){var dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
+  sc.addEventListener("touchstart",function(e){
+    if(e.touches.length===2){
+      var r=sc.getBoundingClientRect(), cx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
+      pinch={d:dist(e.touches),z:z,cx:cx,px:(sc.scrollLeft+cx)/z};
+    }
+  },{passive:true});
+  sc.addEventListener("touchmove",function(e){
+    if(!pinch||e.touches.length!==2) return;
+    e.preventDefault();
+    setZ(pinch.z*dist(e.touches)/pinch.d);
+    sc.scrollLeft=pinch.px*z-pinch.cx;
+  },{passive:false});
+  sc.addEventListener("touchend",function(e){ if(e.touches.length<2) pinch=null; });
 
   // ── 안내 ──
   var lg=document.getElementById("legend");
