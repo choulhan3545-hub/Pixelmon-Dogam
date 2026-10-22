@@ -71,6 +71,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .labels.sm .lbl{font-size:9.5px}
 .lbl.v{writing-mode:vertical-rl;line-height:1.05}
 .lbl.b{color:#1a1328;text-shadow:none}
+.lbl.vs{display:flex;flex-direction:column;align-items:center;line-height:1;color:#1a1328;text-shadow:none;font-weight:900;letter-spacing:0}
+.lbl.vs b{font-weight:900}
 .labels.sm .lbl.v{font-size:9px}
 .labels.sm .lbl.sel{font-size:11px}
 .lbl.sel{background:var(--c);color:#16101f;text-shadow:none;z-index:2;font-size:14px}
@@ -156,6 +158,10 @@ footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);fo
         <i class="patch" style="left:589px;top:307px;width:75px;height:16px;background:#faee83"></i>
         <i class="patch" style="left:147px;top:483px;width:74px;height:16px;background:#a6ffeb"></i>
         <i class="patch" style="left:589px;top:484px;width:75px;height:14px;background:#f7cc97"></i>
+        <i class="patch" style="left:305px;top:157px;width:23px;height:81px;background:#aed9b8"></i>
+        <i class="patch" style="left:480px;top:157px;width:23px;height:81px;background:#f8ea7b"></i>
+        <i class="patch" style="left:306px;top:567px;width:23px;height:82px;background:#a9fff0"></i>
+        <i class="patch" style="left:481px;top:567px;width:23px;height:82px;background:#fbd09a"></i>
       </div>
       <div class="labels" id="labels" aria-hidden="true"></div>
       <div class="zoombar">
@@ -241,6 +247,7 @@ var LABELS = [
   ["클레게톤강", 627, 318, "b"],
   ["레테강", 186, 494, "b"],
   ["아케론강", 627, 494, "b"],
+  ["코퀴토스강", 317, 200, "v b"], ["클레게톤강", 492, 200, "v b"], ["레테강", 318, 612, "v b"], ["아케론강", 493, 612, "v b"],
   ["아스포델 초원", 30, 408, "v"], ["오케아노스 바다", 782, 402, "v"],
   ["카오스", 406, 484], ["미노스의 법정", 268, 730], ["심판의 전당", 541, 730], ["에레보스", 405, 693]
 ];
@@ -248,14 +255,20 @@ var COLOR = {};
 GROUPS.forEach(function(g){ g[1].forEach(function(p){ COLOR[p[0]] = p[3] }) });
 var labelBox = document.getElementById("labels"), lblEls = LABELS.map(function(l){
   var e = document.createElement("span");
-  e.className = "lbl" + (l[3] ? " " + l[3] : ""); e.textContent = l[0];
+  if(l[3] === "v b"){   // 한 글자씩 쌓아 높이를 글자 수 x 글자 크기로 정확히 맞춘다
+    e.className = "lbl vs";
+    e.innerHTML = l[0].split("").map(function(ch){ return "<b>" + ch + "</b>" }).join("");
+  } else { e.className = "lbl" + (l[3] ? " " + l[3] : ""); e.textContent = l[0]; }
   e.style.setProperty("--c", COLOR[l[0]] || "#fff");
   labelBox.appendChild(e); return e;
 });
 function placeLabels(){
   labelBox.classList.toggle("sm", vw() < 520);
   LABELS.forEach(function(l, k){
-    var e = lblEls[k], hw = e.offsetWidth / 2, hh = e.offsetHeight / 2;
+    var e = lblEls[k];
+    // 세로 강 이름은 그림 속 상자(높이 81)에 들어가도록 지도 배율에 맞춰 키운다
+    if(l[3] === "v b") e.style.fontSize = Math.min(15, 81 * s * 0.88 / 5) + "px";
+    var hw = e.offsetWidth / 2, hh = e.offsetHeight / 2;
     // 확대해서 한쪽으로 치우쳐도 이름표가 화면 밖으로 잘리지 않게
     var px = x + (l[1] - OX) * s, py = y + (l[2] - OY) * s;
     // 화면 밖에 있는 이름표는 숨기고, 가장자리에 걸친 것만 안쪽으로 당겨 잘리지 않게 한다
