@@ -46,11 +46,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* 지도 */
 .viewer{position:relative;margin:0 auto;background:#111;border:2px solid var(--edge);overflow:hidden;
-  aspect-ratio:797/803;max-height:82vh;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+  aspect-ratio:796/800;max-height:82vh;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .viewer.drag{cursor:grabbing}
-.stage{position:absolute;left:0;top:0;width:797px;height:803px;transform-origin:0 0;will-change:transform}
+.stage{position:absolute;left:0;top:0;width:796px;height:800px;transform-origin:0 0;will-change:transform}
 .stage.anim{transition:transform .35s ease}
-.stage img{display:block;width:797px;height:803px;image-rendering:pixelated;pointer-events:none;-webkit-user-drag:none}
+.stage img{display:block;width:796px;height:800px;image-rendering:pixelated;pointer-events:none;-webkit-user-drag:none}
 .ring{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border:3px solid var(--pink);border-radius:50%;
   box-shadow:0 0 0 3px rgba(0,0,0,.6);pointer-events:none;display:none;animation:pulse 1.2s ease-in-out infinite}
 .ring.on{display:block}
@@ -59,6 +59,20 @@ button{font:inherit;color:inherit;cursor:pointer}
 .zoombar button{width:40px;height:40px;background:rgba(29,23,48,.92);border:2px solid var(--edge);font-size:20px;line-height:1;font-weight:600}
 .zoombar button:hover{border-color:var(--cyan)}
 .zoombar .fit{font-size:11px;font-weight:600}
+.labels{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.labels.off{display:none}
+.labels.anim .lbl{transition:left .35s ease,top .35s ease}
+.lbl.gone{display:none}
+.lbl{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-weight:700;font-size:13px;line-height:1.2;
+  padding:2px 7px;background:rgba(14,10,24,.93);border:2px solid var(--c);color:var(--c);
+  text-shadow:0 1px 0 #000;letter-spacing:-.01em}
+.lbl.v{writing-mode:vertical-rl;padding:5px 2px;line-height:1;font-size:12px;letter-spacing:-.02em}
+.labels.sm .lbl{font-size:10.5px;padding:1px 4px;border-width:1px}
+.labels.sm .lbl.v{font-size:10px;padding:3px 1px}
+.labels.sm .lbl.sel{font-size:11.5px}
+.lbl.sel{background:var(--c);color:#16101f;text-shadow:none;z-index:2;font-size:14px}
+.zoombar .nm{font-size:12px;font-weight:700}
+.zoombar .nm[aria-pressed="false"]{color:var(--dimmer)}
 .hint{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(20,16,32,.88);border:1px solid var(--edge);padding:4px 9px;font-size:12px;color:var(--dim);pointer-events:none;transition:opacity .4s}
 .hint.off{opacity:0}
 .picked{position:absolute;left:10px;top:10px;z-index:2;background:rgba(20,16,32,.92);border:2px solid var(--pink);padding:4px 10px;font-weight:600;display:none}
@@ -129,13 +143,15 @@ footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);fo
   <div>
     <div class="viewer" id="viewer">
       <div class="stage" id="stage">
-        <img src="map.png" alt="저승 지도 전체" width="797" height="803" draggable="false">
+        <img src="map.png" alt="저승 지도 전체" width="796" height="800" draggable="false">
         <div class="ring" id="ring"></div>
       </div>
+      <div class="labels" id="labels" aria-hidden="true"></div>
       <div class="zoombar">
         <button id="zIn" type="button" aria-label="확대">+</button>
         <button id="zOut" type="button" aria-label="축소">−</button>
         <button id="zFit" class="fit" type="button" aria-label="전체 보기">전체</button>
+        <button id="zNm" class="nm" type="button" aria-pressed="true" aria-label="지역 이름표 켜고 끄기">이름</button>
       </div>
       <div class="picked" id="picked"></div>
       <div class="hint" id="hint">두 손가락으로 확대 · 끌어서 이동 · 두 번 눌러 확대</div>
@@ -173,8 +189,8 @@ footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);fo
 (function(){
 "use strict";
 
-var W = 797, H = 803;
-// 지역 위치는 그림(797×803) 기준 좌표 — 문 그림의 가운데
+var W = 796, H = 800, OX = 1, OY = 3;
+// 지역 위치는 원본 캡처(797×803) 기준 좌표 — 흰 테두리를 잘라 낸 만큼(OX,OY)은 쓸 때 뺀다 — 문 그림의 가운데
 var GROUPS = [
   ["위쪽", [
     ["엘리시온 평원", 403, 82, "#a6d86a"],
@@ -207,6 +223,46 @@ var viewer = document.getElementById("viewer"),
     picked = document.getElementById("picked"),
     hint = document.getElementById("hint");
 
+// 그림 속 지역 이름은 작아서 읽기 어렵다 — 같은 자리에 굵은 이름표를 얹는다 (원본 캡처 좌표)
+var LABELS = [
+  ["엘리시온 평원", 411, 53], ["스틱스강", 267, 103], ["탄식의 들판", 534, 103],
+  ["코퀴토스강", 186, 318], ["코퀴토스강", 318, 205, "v"],
+  ["클레게톤강", 627, 318], ["클레게톤강", 490, 205, "v"],
+  ["레테강", 186, 494], ["레테강", 318, 595, "v"],
+  ["아케론강", 627, 494], ["아케론강", 490, 595, "v"],
+  ["아스포델 초원", 82, 385], ["오케아노스 바다", 742, 375],
+  ["카오스", 406, 484], ["미노스의 법정", 268, 661], ["심판의 전당", 541, 661], ["에레보스", 405, 693]
+];
+var COLOR = {};
+GROUPS.forEach(function(g){ g[1].forEach(function(p){ COLOR[p[0]] = p[3] }) });
+var labelBox = document.getElementById("labels"), lblEls = LABELS.map(function(l){
+  var e = document.createElement("span");
+  e.className = "lbl" + (l[3] ? " v" : ""); e.textContent = l[0];
+  e.style.setProperty("--c", COLOR[l[0]] || "#fff");
+  labelBox.appendChild(e); return e;
+});
+function placeLabels(){
+  labelBox.classList.toggle("sm", vw() < 520);
+  LABELS.forEach(function(l, k){
+    var e = lblEls[k], hw = e.offsetWidth / 2, hh = e.offsetHeight / 2;
+    // 확대해서 한쪽으로 치우쳐도 이름표가 화면 밖으로 잘리지 않게
+    var px = x + (l[1] - OX) * s, py = y + (l[2] - OY) * s;
+    // 화면 밖에 있는 이름표는 숨기고, 가장자리에 걸친 것만 안쪽으로 당겨 잘리지 않게 한다
+    var out = px < -hw || px > vw() + hw || py < -hh || py > vh() + hh;
+    e.classList.toggle("gone", out);
+    e.style.left = Math.max(hw + 2, Math.min(vw() - hw - 2, px)) + "px";
+    e.style.top = Math.max(hh + 2, Math.min(vh() - hh - 2, py)) + "px";
+  });
+}
+function markLabels(name){
+  LABELS.forEach(function(l, k){ lblEls[k].classList.toggle("sel", l[0] === name) });
+}
+document.getElementById("zNm").addEventListener("click", function(){
+  var on = this.getAttribute("aria-pressed") !== "true";
+  this.setAttribute("aria-pressed", on ? "true" : "false");
+  labelBox.classList.toggle("off", !on);
+});
+
 var s = 1, x = 0, y = 0, fit = 1, MAXS = 5;
 function vw(){return viewer.clientWidth} function vh(){return viewer.clientHeight}
 
@@ -218,7 +274,9 @@ function clamp(){
 function apply(anim){
   clamp();
   stage.classList.toggle("anim", !!anim);
+  labelBox.classList.toggle("anim", !!anim);
   stage.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+  placeLabels();
 }
 function computeFit(){ fit = Math.min(vw() / W, vh() / H) }
 // 화면 위 한 점(px,py)을 고정한 채 배율 바꾸기
@@ -237,7 +295,7 @@ function hideHint(){ hint.classList.add("off") }
 
 document.getElementById("zIn").addEventListener("click", function(){ zoomAt(s * 1.5, vw() / 2, vh() / 2, true); hideHint() });
 document.getElementById("zOut").addEventListener("click", function(){ zoomAt(s / 1.5, vw() / 2, vh() / 2, true) });
-document.getElementById("zFit").addEventListener("click", function(){ showAll(true) });
+document.getElementById("zFit").addEventListener("click", function(){ clearPick(); showAll(true) });
 
 viewer.addEventListener("wheel", function(e){
   e.preventDefault(); hideHint();
@@ -312,16 +370,21 @@ GROUPS.forEach(function(g){
   });
   div.appendChild(list); gbox.appendChild(div);
 });
+function clearPick(){
+  current = null; ring.classList.remove("on"); picked.classList.remove("on");
+  btns.forEach(function(o){ o.setAttribute("aria-pressed", "false") }); markLabels(null);
+}
 function pick(p, b){
   btns.forEach(function(o){ o.setAttribute("aria-pressed", "false") });
+  markLabels(current === p ? null : p[0]);
   if(current === p){
     current = null; ring.classList.remove("on"); picked.classList.remove("on"); showAll(true); return;
   }
   current = p; b.setAttribute("aria-pressed", "true");
-  ring.style.left = p[1] + "px"; ring.style.top = p[2] + "px"; ring.classList.add("on");
+  ring.style.left = (p[1] - OX) + "px"; ring.style.top = (p[2] - OY) + "px"; ring.classList.add("on");
   picked.textContent = p[0]; picked.style.borderColor = p[3]; picked.classList.add("on");
   hideHint();
-  goTo(p[1], p[2], fit * 2.6, true);
+  goTo(p[1] - OX, p[2] - OY, fit * 2.6, true);
   if(window.innerWidth <= 860) viewer.scrollIntoView({behavior:"smooth", block:"center"});
 }
 
@@ -332,6 +395,7 @@ var img = stage.querySelector("img");
 if(img.complete) showAll(false); else img.addEventListener("load", function(){ showAll(false) });
 showAll(false);
 setTimeout(hideHint, 6000);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ placeLabels() });
 })();
 </script>
 </body>
