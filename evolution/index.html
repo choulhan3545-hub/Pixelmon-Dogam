@@ -81,7 +81,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   padding:6px 4px 7px;border:2px solid transparent;background:transparent;
   font:inherit;color:inherit;
 }
-.node:hover{background:var(--surface);border-color:var(--edge)}
+@media (hover:hover){.node:hover{background:var(--surface);border-color:var(--edge)}}
 .node:focus-visible{outline:3px solid var(--pink);outline-offset:1px}
 .node.sel{background:var(--raised);border-color:var(--cyan)}
 .node.path{border-color:var(--cyan);border-style:dashed}
@@ -104,19 +104,19 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
    한 줄에 몬스터 하나(왼쪽 그림, 오른쪽 이름·수치). 갈래만 들여쓰고, 외길(자식 하나)은 바로 아래로 잇는다. */
 @media (max-width:700px){
   .scroller{padding:12px 0 24px}
-  #tree{width:auto;--art:calc(72px * var(--k,1))}
+  #tree{width:auto;--art:calc(88px * var(--k,1))}
   #tree li{display:block}
   #tree li>ul{display:block}
-  #tree li.has>ul{margin-left:16px}
-  #tree li>ul>li{padding:0 0 0 16px}
+  #tree li.has>ul{margin-left:12px}
+  #tree li>ul>li{padding:0 0 0 12px}
   #tree li>ul>li::before{display:none}
   #tree li>ul>li::after,#tree li>ul>li:first-child::after{top:0;bottom:0}
   #tree li>ul>li:last-child::after{display:none}
   #tree li.has>.node{margin-right:0}
   #tree li.has>.node::after{display:none}
   /* 갈래: 노드 앞 가로줄 + 마지막 자식은 세로줄을 노드 가운데까지만 */
-  #tree li>ul>li>.node::before{content:"";position:absolute;left:-18px;top:50%;width:16px;border-top:3px solid var(--line)}
-  #tree li>ul>li:last-child>.node::after{content:"";display:block;position:absolute;left:-18px;right:auto;top:-2px;width:0;height:calc(50% + 2px);border-top:0;border-left:3px solid var(--line)}
+  #tree li>ul>li>.node::before{content:"";position:absolute;left:-14px;top:50%;width:12px;border-top:3px solid var(--line)}
+  #tree li>ul>li:last-child>.node::after{content:"";display:block;position:absolute;left:-14px;right:auto;top:-2px;width:0;height:calc(50% + 2px);border-top:0;border-left:3px solid var(--line)}
   /* 외길 */
   #tree li.has>ul.one{margin-left:0}
   #tree ul.one>li{padding:10px 0 0 0}
@@ -126,8 +126,9 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 
   .node{display:grid;grid-template-columns:var(--art) minmax(0,1fr);column-gap:10px;align-items:center;text-align:left;width:100%;min-width:0;padding:4px;margin:2px 0}
   .art{grid-column:1;grid-row:1/3;min-height:0;align-items:center}
+  .node{-webkit-tap-highlight-color:transparent}
   .nm{grid-column:2;grid-row:1;justify-content:flex-start;max-width:none;margin:0;font-size:14px;overflow-wrap:anywhere}
-  .top{grid-column:2;grid-row:2;justify-content:flex-start;min-height:0}
+  .top{grid-column:2;grid-row:2;justify-content:flex-start;min-height:0;flex-wrap:wrap;gap:2px 6px}
   .top:empty{display:none}
 }
 
@@ -232,9 +233,10 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     } else {
       // 진화표: 모든 몬스터를 같은 배율로 (게임처럼 큰 몬스터는 크게)
       d=Math.max(1,Math.round(DOT*K*dpr));
-      // 폰 목록형: 점 3px 기준, 그림 칸(72px)을 넘는 큰 몬스터만 줄인다 (그래도 정수 배)
+      // 폰 목록형: 점 2px 기준으로 모두 같은 배율. 칸(88px)을 넘는 아주 큰 몬스터 몇 마리만 한두 단계 줄인다.
+      // (예전에는 칸에 맞춰 개별로 키우고 줄여서 큰 몬스터가 작은 몬스터보다 작아 보였다)
       if(MOB.matches){
-        d=Math.max(1,Math.min(Math.round(3*K*dpr),Math.floor(72*K*dpr/Math.max(w,h))));
+        d=Math.max(1,Math.min(Math.round(2*K*dpr),Math.floor(88*K*dpr/w)));
       }
     }
     im.style.width=(w*d/dpr)+"px"; im.style.height=(h*d/dpr)+"px";
