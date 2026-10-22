@@ -39,6 +39,35 @@ window.EVO = {
 
     { id: "agumonbond",    name: "아구몬 용기의유대", p: "agumon", cond: 1 },
 
+    // ── 지오그레이몬 계열 (사진 3 위쪽 · 아구몬의 마지막 갈래) ──
+    { id: "geogreymon",    name: "지오그레이몬",      p: "agumon", cond: 1 },
+    { id: "risegreymon",   name: "라이즈그레이몬",    p: "geogreymon", cost: 100000 },
+    { id: "shinegreymon",  name: "샤인그레이몬",      p: "risegreymon", box: 1, cond: 1 },
+    { id: "shineburst",    name: "샤인그레이몬 Burst",p: "shinegreymon", box: 1, cond: 1 },
+    { id: "shineruin",     name: "샤인그레이몬 Ruin", p: "shinegreymon", cond: 1 },
+
+    // ── 아구몬(흑) 계열 (사진 3 가운데 · 코로몬에서 갈라짐) ──
+    { id: "agumonblack",   name: "아구몬(흑)",        p: "koromon", cond: 1 },
+    { id: "greymonblack",  name: "그레이몬(흑)",      p: "agumonblack", cost: 1500 },
+    { id: "metalgreymonblack", name: "메탈그레이몬(흑)", p: "greymonblack", cost: 6000 },
+    { id: "blackwargreymon",   name: "블랙워그레이몬",  p: "metalgreymonblack", cost: 35000, box: 1 },
+    { id: "blackwargreymonx",  name: "블랙워그레이몬X", p: "blackwargreymon", cond: 1 },
+    { id: "gaiomon",       name: "가이오몬",          p: "metalgreymonblack", box: 1, cond: 1 },
+    { id: "gaiomonblade",  name: "가이오몬 엄도의형", p: "gaiomon", cond: 1 },
+    { id: "blitzgreymon",  name: "블리츠그레이몬",    p: "metalgreymonblack", box: 1, cond: 1 },
+    { id: "greymonc",      name: "그레이몬(C)",       p: "agumonblack", cost: 1500, cond: 1 },
+
+    // ── 츄몬 계열 (사진 3 아래 · 코로몬에서 갈라짐) ──
+    { id: "chumon",        name: "츄몬",              p: "koromon", cond: 1 },
+    { id: "scumon",        name: "스카몬",            p: "chumon", cost: 1400 },
+    { id: "etemon",        name: "에테몬",            p: "scumon", cost: 7000 },
+    { id: "metaletemon",   name: "메탈에테몬",        p: "etemon", cost: 40000, box: 1, cond: 1 },
+    { id: "kingetemon",    name: "킹에테몬",          p: "etemon", cond: 1 },
+    { id: "bombmoyamon",   name: "폭탄모야몬",        p: "chumon", cond: 1 },
+    { id: "woremon",       name: "워매몬",            p: "chumon", cond: 1 },
+    { id: "puppetmon",     name: "퍼펫몬",            p: "woremon", cost: 100000 },
+    { id: "shinmonzaemon", name: "신몬자에몬",        p: "puppetmon", cond: 1 },
+
     // ── 베타몬 계열 · 혁몬 계열 (사진 1) ──
     // 사진 1은 왼쪽 가지가 위로 이어진 채 잘려 있다. 코로몬에서 갈라진다고 보고 붙였다(추정).
     { id: "betamon",       name: "베타몬",            p: "koromon", cond: 1, assumed: 1 },
