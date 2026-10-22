@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141020">
+<title>저승 지도</title>
+<meta name="description" content="픽셀몬스터 저승 지도 — 확대해서 보고, 지역 이름을 누르면 그 자리로 이동합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ground:#141020;
+  --surface:#1d1730;
+  --raised:#271f3f;
+  --edge:#3a2f56;
+  --edge-soft:#2b2242;
+  --ink:#f2edfa;
+  --dim:#9c8fb8;
+  --dimmer:#6f6389;
+  --cyan:#6fd3e0;
+  --pink:#f273b0;
+  --gold:#ffb45c;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --title:"Do Hyeon","IBM Plex Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-size:14.5px;line-height:1.55;padding-bottom:60px;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+
+.mast{padding:26px 0 14px;border-bottom:2px solid var(--edge-soft)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--dimmer);text-transform:uppercase}
+.mast h1{font-family:var(--title);font-weight:400;font-size:clamp(27px,6vw,36px);margin:2px 0 0;color:var(--cyan);line-height:1.2}
+.mast p{margin:6px 0 0;color:var(--dim);font-size:13.5px;word-break:keep-all}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px;align-items:start}
+
+/* 지도 */
+.viewer{position:relative;margin:0 auto;background:#111;border:2px solid var(--edge);overflow:hidden;
+  aspect-ratio:797/803;max-height:82vh;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.viewer.drag{cursor:grabbing}
+.stage{position:absolute;left:0;top:0;width:797px;height:803px;transform-origin:0 0;will-change:transform}
+.stage.anim{transition:transform .35s ease}
+.stage img{display:block;width:797px;height:803px;image-rendering:pixelated;pointer-events:none;-webkit-user-drag:none}
+.ring{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border:3px solid var(--pink);border-radius:50%;
+  box-shadow:0 0 0 3px rgba(0,0,0,.6);pointer-events:none;display:none;animation:pulse 1.2s ease-in-out infinite}
+.ring.on{display:block}
+@keyframes pulse{50%{transform:scale(1.18);opacity:.65}}
+.zoombar{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.zoombar button{width:40px;height:40px;background:rgba(29,23,48,.92);border:2px solid var(--edge);font-size:20px;line-height:1;font-weight:600}
+.zoombar button:hover{border-color:var(--cyan)}
+.zoombar .fit{font-size:11px;font-weight:600}
+.hint{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(20,16,32,.88);border:1px solid var(--edge);padding:4px 9px;font-size:12px;color:var(--dim);pointer-events:none;transition:opacity .4s}
+.hint.off{opacity:0}
+.picked{position:absolute;left:10px;top:10px;z-index:2;background:rgba(20,16,32,.92);border:2px solid var(--pink);padding:4px 10px;font-weight:600;display:none}
+.picked.on{display:block}
+.under{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;color:var(--dimmer)}
+.under a{color:var(--cyan)}
+
+/* 지역 목록 */
+.side h2{font-family:var(--title);font-weight:400;font-size:20px;margin:0 0 4px}
+.side>p{margin:0 0 12px;font-size:13px;color:var(--dim);word-break:keep-all}
+.group{margin-bottom:14px}
+.group h3{font-size:12px;color:var(--dimmer);font-weight:600;margin:0 0 6px;letter-spacing:.04em}
+.places{display:grid;gap:5px}
+.place{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:2px solid var(--edge-soft);padding:8px 10px;font-weight:500}
+.place:hover{border-color:var(--edge)}
+.place[aria-pressed="true"]{border-color:var(--pink);background:var(--raised)}
+.place i{flex:none;width:12px;height:12px}
+.place span{flex:1}
+.place em{font-style:normal;font-size:11.5px;color:var(--dimmer)}
+
+.howto{margin-top:18px;background:var(--surface);border:2px solid var(--edge-soft);padding:12px 14px;font-size:13px;color:var(--dim)}
+.howto b{color:var(--ink);font-weight:600}
+.howto ul{margin:6px 0 0;padding-left:18px}
+
+footer{margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);font-size:12.5px;color:var(--dim);line-height:1.8}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .places{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 도감 사이트 페이지를 서로 오갈 수 있게 하는 줄.
+   페이지마다 색 변수 이름이 달라서 대체값을 함께 적어 둔다
+   (코디·룬·코스튬·저승은 --surface/--edge, 에고는 --plate/--rule). */
+.sitenav{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.sitenav a{
+  font-family:"IBM Plex Sans KR","Malgun Gothic",sans-serif;
+  font-size:12.5px;font-weight:600;line-height:1.2;text-decoration:none;
+  color:var(--dim);
+  background:var(--surface,var(--plate,transparent));
+  border:2px solid var(--edge-soft,var(--rule-soft,currentColor));
+  padding:5px 11px;
+  transition:color .12s,border-color .12s;
+}
+.sitenav a:hover{color:var(--ink);border-color:var(--edge,var(--rule,currentColor))}
+.sitenav a.here{background:var(--ink);color:var(--ground);border-color:var(--ink);cursor:default}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <span class="eyebrow">Pixel Monster &middot; Underworld</span>
+  <h1>저승 지도</h1>
+  <p>지도를 확대해 보고, 오른쪽(폰은 아래) 지역 이름을 누르면 그 자리로 바로 이동합니다.</p>
+  <nav class="sitenav">
+    <a href="../">홈</a>
+    <a href="../cody/">코디</a>
+    <a href="../ego/">에고무기</a>
+    <a href="../rune/">룬 계산기</a>
+    <a href="../costume/">코스튬</a>
+    <a class="here" aria-current="page">저승 지도</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <div>
+    <div class="viewer" id="viewer">
+      <div class="stage" id="stage">
+        <img src="map.png" alt="저승 지도 전체" width="797" height="803" draggable="false">
+        <div class="ring" id="ring"></div>
+      </div>
+      <div class="zoombar">
+        <button id="zIn" type="button" aria-label="확대">+</button>
+        <button id="zOut" type="button" aria-label="축소">−</button>
+        <button id="zFit" class="fit" type="button" aria-label="전체 보기">전체</button>
+      </div>
+      <div class="picked" id="picked"></div>
+      <div class="hint" id="hint">두 손가락으로 확대 · 끌어서 이동 · 두 번 눌러 확대</div>
+    </div>
+    <div class="under">
+      <span>지도를 누르면 그 부분이 커집니다.</span>
+      <a href="map.png" target="_blank" rel="noopener">원본 그림 따로 열기 ↗</a>
+    </div>
+  </div>
+
+  <aside class="side">
+    <h2>지역 바로 가기</h2>
+    <p>이름을 누르면 지도에서 그 문이 분홍 동그라미로 표시됩니다. 한 번 더 누르면 풀립니다.</p>
+    <div id="groups"></div>
+  </aside>
+</div>
+
+<div class="howto">
+  <b>지도 보는 법</b>
+  <ul>
+    <li>아치형 <b>문</b> 그림이 각 지역의 입구입니다. 문 위의 글자가 지역 이름입니다.</li>
+    <li>문 주변의 작은 네모 칸들이 그 지역에 나오는 몬스터입니다. 확대하면 얼굴이 보입니다.</li>
+    <li>네 줄기의 <b>강</b>(코퀴토스 · 클레게톤 · 레테 · 아케론)은 이름표가 두 곳에 있습니다 — 가로 이름표와 가운데 쪽 세로 이름표.</li>
+    <li>흰 화살표는 그림에 그려진 방향 그대로 옮겨 둔 것입니다.</li>
+  </ul>
+</div>
+
+<footer>
+  지도 그림은 게임 화면을 그대로 옮겨 온 것입니다. 틀리거나 바뀐 부분이 있으면 알려 주세요.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var W = 797, H = 803;
+// 지역 위치는 그림(797×803) 기준 좌표 — 문 그림의 가운데
+var GROUPS = [
+  ["위쪽", [
+    ["엘리시온 평원", 403, 82, "#a6d86a"],
+    ["스틱스강", 270, 132, "#ff5b5b"],
+    ["탄식의 들판", 540, 132, "#7ddc6a"]
+  ]],
+  ["강 네 줄기", [
+    ["코퀴토스강", 115, 338, "#bfe9d3", "왼쪽 위"],
+    ["클레게톤강", 702, 338, "#fff0a3", "오른쪽 위"],
+    ["레테강", 115, 476, "#a8f2e4", "왼쪽 아래"],
+    ["아케론강", 702, 476, "#ffc58a", "오른쪽 아래"]
+  ]],
+  ["양옆", [
+    ["아스포델 초원", 70, 408, "#ff6f8a", "왼쪽 끝"],
+    ["오케아노스 바다", 740, 404, "#6fd3f0", "오른쪽 끝"]
+  ]],
+  ["가운데", [
+    ["카오스", 403, 508, "#e66be6"]
+  ]],
+  ["아래쪽", [
+    ["미노스의 법정", 268, 688, "#c9a27a"],
+    ["심판의 전당", 540, 688, "#c9a27a"],
+    ["에레보스", 403, 720, "#c7b4ff"]
+  ]]
+];
+
+var viewer = document.getElementById("viewer"),
+    stage = document.getElementById("stage"),
+    ring = document.getElementById("ring"),
+    picked = document.getElementById("picked"),
+    hint = document.getElementById("hint");
+
+var s = 1, x = 0, y = 0, fit = 1, MAXS = 5;
+function vw(){return viewer.clientWidth} function vh(){return viewer.clientHeight}
+
+function clamp(){
+  var sw = W * s, sh = H * s;
+  x = sw <= vw() ? (vw() - sw) / 2 : Math.min(0, Math.max(vw() - sw, x));
+  y = sh <= vh() ? (vh() - sh) / 2 : Math.min(0, Math.max(vh() - sh, y));
+}
+function apply(anim){
+  clamp();
+  stage.classList.toggle("anim", !!anim);
+  stage.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
+}
+function computeFit(){ fit = Math.min(vw() / W, vh() / H) }
+// 화면 위 한 점(px,py)을 고정한 채 배율 바꾸기
+function zoomAt(ns, px, py, anim){
+  ns = Math.max(fit, Math.min(fit * MAXS, ns));
+  x = px - (px - x) * ns / s;
+  y = py - (py - y) * ns / s;
+  s = ns; apply(anim);
+}
+function showAll(anim){ computeFit(); s = fit; x = 0; y = 0; apply(anim) }
+function goTo(px, py, ns, anim){
+  s = Math.max(fit, Math.min(fit * MAXS, ns));
+  x = vw() / 2 - px * s; y = vh() / 2 - py * s; apply(anim);
+}
+function hideHint(){ hint.classList.add("off") }
+
+document.getElementById("zIn").addEventListener("click", function(){ zoomAt(s * 1.5, vw() / 2, vh() / 2, true); hideHint() });
+document.getElementById("zOut").addEventListener("click", function(){ zoomAt(s / 1.5, vw() / 2, vh() / 2, true) });
+document.getElementById("zFit").addEventListener("click", function(){ showAll(true) });
+
+viewer.addEventListener("wheel", function(e){
+  e.preventDefault(); hideHint();
+  var r = viewer.getBoundingClientRect();
+  zoomAt(s * (e.deltaY < 0 ? 1.2 : 1 / 1.2), e.clientX - r.left, e.clientY - r.top, false);
+}, {passive:false});
+
+// 끌기 · 두 손가락 확대 · 누르기
+var pts = {}, last = null, moved = 0, pinch = null, lastTap = 0;
+function local(e){ var r = viewer.getBoundingClientRect(); return {x:e.clientX - r.left, y:e.clientY - r.top} }
+viewer.addEventListener("pointerdown", function(e){
+  if(e.target.closest(".zoombar")) return;
+  viewer.setPointerCapture(e.pointerId);
+  pts[e.pointerId] = local(e);
+  var ids = Object.keys(pts);
+  if(ids.length === 1){ last = pts[ids[0]]; moved = 0 }
+  if(ids.length === 2){
+    var a = pts[ids[0]], b = pts[ids[1]];
+    pinch = {d:Math.hypot(a.x - b.x, a.y - b.y), s:s}; moved = 99;
+  }
+  viewer.classList.add("drag"); hideHint();
+});
+viewer.addEventListener("pointermove", function(e){
+  if(!(e.pointerId in pts)) return;
+  pts[e.pointerId] = local(e);
+  var ids = Object.keys(pts);
+  if(ids.length === 2 && pinch){
+    var a = pts[ids[0]], b = pts[ids[1]];
+    var d = Math.hypot(a.x - b.x, a.y - b.y);
+    zoomAt(pinch.s * d / pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2, false);
+  } else if(ids.length === 1 && last){
+    var p = pts[ids[0]];
+    x += p.x - last.x; y += p.y - last.y; moved += Math.abs(p.x - last.x) + Math.abs(p.y - last.y);
+    last = p; apply(false);
+  }
+});
+function up(e){
+  if(!(e.pointerId in pts)) return;
+  var p = pts[e.pointerId];
+  delete pts[e.pointerId];
+  var ids = Object.keys(pts);
+  if(ids.length < 2) pinch = null;
+  if(ids.length === 1) last = pts[ids[0]];
+  if(!ids.length){
+    viewer.classList.remove("drag");
+    if(moved < 6){
+      // 누르면 그 부분 확대, 다 커졌으면 전체 보기로
+      var now = Date.now();
+      if(s >= fit * MAXS * 0.98 || (now - lastTap < 300 && s > fit * 2.5)) showAll(true);
+      else zoomAt(s * 2, p.x, p.y, true);
+      lastTap = now;
+    }
+    last = null;
+  }
+}
+viewer.addEventListener("pointerup", up);
+viewer.addEventListener("pointercancel", up);
+
+// 지역 목록
+var current = null, btns = [];
+var gbox = document.getElementById("groups");
+GROUPS.forEach(function(g){
+  var div = document.createElement("div"); div.className = "group";
+  div.innerHTML = "<h3>" + g[0] + "</h3>";
+  var list = document.createElement("div"); list.className = "places";
+  g[1].forEach(function(p){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "place"; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = '<i style="background:' + p[3] + '"></i><span>' + p[0] + '</span>' + (p[4] ? '<em>' + p[4] + '</em>' : '');
+    b.addEventListener("click", function(){ pick(p, b) });
+    btns.push(b); list.appendChild(b);
+  });
+  div.appendChild(list); gbox.appendChild(div);
+});
+function pick(p, b){
+  btns.forEach(function(o){ o.setAttribute("aria-pressed", "false") });
+  if(current === p){
+    current = null; ring.classList.remove("on"); picked.classList.remove("on"); showAll(true); return;
+  }
+  current = p; b.setAttribute("aria-pressed", "true");
+  ring.style.left = p[1] + "px"; ring.style.top = p[2] + "px"; ring.classList.add("on");
+  picked.textContent = p[0]; picked.style.borderColor = p[3]; picked.classList.add("on");
+  hideHint();
+  goTo(p[1], p[2], fit * 2.6, true);
+  if(window.innerWidth <= 860) viewer.scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+window.addEventListener("resize", function(){
+  var keep = s / fit; computeFit(); s = fit * keep; apply(false);
+});
+var img = stage.querySelector("img");
+if(img.complete) showAll(false); else img.addEventListener("load", function(){ showAll(false) });
+showAll(false);
+setTimeout(hideHint, 6000);
+})();
+</script>
+</body>
+</html>

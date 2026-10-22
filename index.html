@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>픽셀몬스터 종합 툴</title>
-<meta name="description" content="픽셀몬스터 도감과 계산기 모음 — 코디 · 에고무기 · 코스튬 도감과 각성 룬 계산기.">
+<meta name="description" content="픽셀몬스터 도감과 계산기 모음 — 코디 · 에고무기 · 코스튬 도감, 각성 룬 계산기, 저승 지도.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
@@ -62,6 +62,15 @@ a.card:focus-visible{outline:3px solid var(--lv3);outline-offset:2px}
 }
 .card span{display:block;margin-top:5px;font-size:12.5px;color:var(--dim);word-break:keep-all}
 
+/* 아직 공개 전인 것. 눌러도 가는 곳이 없으니 링크로 두지 않는다. */
+.card.soon{opacity:.45;border-style:dashed;cursor:default}
+.card.soon b::after{
+  content:"준비 중";
+  float:right;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.1em;color:var(--dimmer);border:1px solid var(--edge);
+  padding:1px 6px;margin-top:3px;
+}
+
 
 footer{
   margin-top:40px;padding-top:16px;border-top:2px solid var(--edge-soft);
@@ -90,6 +99,12 @@ footer b{color:var(--ink);font-weight:600}
   <a class="card" href="cody/"><b>코디 도감</b><span>152종 · 보유 체크와 점수 계산</span></a>
   <a class="card" href="costume/"><b>코스튬 도감</b><span>436종 · 이름 · 주인 몬스터 · 획득처</span></a>
   <a class="card" href="ego/"><b>에고무기 도감</b><span>250종 · 속성과 형태별로 보기</span></a>
+  <div class="card soon"><b>각성 몬스터 확인</b><span>111종 · 속성 · 상태이상 · 코스트 · 쿨타임</span></div>
+</div>
+
+<h2 class="sect">지도 <small>MAP</small></h2>
+<div class="cards">
+  <a class="card" href="underworld/"><b>저승 지도</b><span>확대해서 보기 · 지역 이름 누르면 바로 이동</span></a>
 </div>
 
 <h2 class="sect">계산기 <small>CALCULATOR</small></h2>
