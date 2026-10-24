@@ -177,6 +177,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   .bar input{flex:1 1 0;padding:6px 8px;font-size:13px}
   .btn{padding:5px 11px}
   .lines{flex-wrap:nowrap;overflow-x:auto;margin:0 -8px;padding:2px 8px 4px;scrollbar-width:none}
+  @media (min-width:701px){.lines{flex-wrap:wrap;overflow:visible;max-height:none}}
   .lines::-webkit-scrollbar{display:none}
   .lines button{flex:none}
   .tip{display:block;font-size:11px;color:var(--dim);padding:0 0 4px}
@@ -232,8 +233,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 <div id="upd" role="button"></div>
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js?v=20261025b"></script>
-<script src="img.js?v=20261025b"></script>
+<script src="data.js?v=20261025c"></script>
+<script src="img.js?v=20261025c"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -403,7 +404,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   document.getElementById("bgb").onclick=function(){ setLight(!light); };
 
   // 새 버전 알림: 폰이 예전 화면을 계속 열어 두고 있어도, 새 버전이 있으면 알려 준다
-  var BUILD="20261025b";
+  var BUILD="20261025c";
   try{
     fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
       t=(t||"").trim(); if(t&&t!==BUILD){
