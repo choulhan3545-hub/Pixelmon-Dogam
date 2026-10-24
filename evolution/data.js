@@ -6,7 +6,8 @@ window.EVO = {
   // 아이콘 뜻은 아직 확정 전 — 알게 되면 여기에 이름을 적으면 팝업에 나온다.
   ICONS: {
     c_betamon: "해변",
-    box: ""
+    c_skullgreymon: "데스",
+
   },
   NODES: [
     { id: "egg",           name: "알",                p: null },
@@ -17,15 +18,15 @@ window.EVO = {
     { id: "agumon",        name: "아구몬",            p: "koromon", cost: 260, cond: 1 },
     { id: "greymon",       name: "그레이몬",          p: "agumon", cost: 1300, cond: 1 },
     { id: "metalgreymon",  name: "메탈그레이몬",      p: "greymon", cost: 5500 },
-    { id: "wargreymon",    name: "워그레이몬",        p: "metalgreymon", cost: 32000, box: 1 },
+    { id: "wargreymon",    name: "워그레이몬",        p: "metalgreymon", cost: 32000 },
     { id: "wargreymonx",   name: "워그레이몬X",       p: "wargreymon", cond: 1 },
-    { id: "ancientgreymon",name: "에이션트그레이몬",  p: "metalgreymon", box: 1, cond: 1, req: "ancientreq" },
-    { id: "victorygreymon",name: "빅토리그레이몬",    p: "metalgreymon", box: 1, cond: 1 },
+    { id: "ancientgreymon",name: "에이션트그레이몬",  p: "metalgreymon", cond: 1, req: "ancientreq" },
+    { id: "victorygreymon",name: "빅토리그레이몬",    p: "metalgreymon", cond: 1 },
     { id: "skullgreymon",  name: "스컬그레이몬",      p: "greymon", cost: 5500, cond: 1, n: 50 },
 
     { id: "tyranomon",     name: "티라노몬",          p: "agumon", cost: 1300 },
     { id: "mastertyranomon",name:"마스터티라노몬",    p: "tyranomon", cost: 6500 },
-    { id: "goddramon",     name: "갓드라몬",          p: "mastertyranomon", box: 1, cond: 1 },
+    { id: "goddramon",     name: "갓드라몬",          p: "mastertyranomon", cond: 1 },
     { id: "goddramonx",    name: "갓드라몬X",         p: "goddramon", cond: 1 },
     { id: "kongal",        name: "콩알티라노몬",      p: "tyranomon", cond: 1, req: "recipe" },
 
@@ -33,7 +34,7 @@ window.EVO = {
 
     { id: "darktyranomon", name: "다크티라노몬",      p: "agumon", cost: 1300, cond: 1 },
     { id: "metaltyranomon",name: "메탈티라노몬",      p: "darktyranomon", cost: 6000 },
-    { id: "powerdramon",   name: "파워드라몬",        p: "metaltyranomon", box: 1 },
+    { id: "powerdramon",   name: "파워드라몬",        p: "metaltyranomon" },
     { id: "chaosdramon",   name: "카오스드라몬",      p: "powerdramon", cond: 1 },
     { id: "rusttyranomon", name: "러스트티라노몬",    p: "metaltyranomon", cond: 1 },
 
@@ -42,26 +43,26 @@ window.EVO = {
     // ── 지오그레이몬 계열 (사진 3 위쪽 · 아구몬의 마지막 갈래) ──
     { id: "geogreymon",    name: "지오그레이몬",      p: "agumon", cond: 1 },
     { id: "risegreymon",   name: "라이즈그레이몬",    p: "geogreymon", cost: 100000 },
-    { id: "shinegreymon",  name: "샤인그레이몬",      p: "risegreymon", box: 1, cond: 1 },
-    { id: "shineburst",    name: "샤인그레이몬 Burst",p: "shinegreymon", box: 1, cond: 1 },
+    { id: "shinegreymon",  name: "샤인그레이몬",      p: "risegreymon", cond: 1 },
+    { id: "shineburst",    name: "샤인그레이몬 Burst",p: "shinegreymon", cond: 1 },
     { id: "shineruin",     name: "샤인그레이몬 Ruin", p: "shinegreymon", cond: 1 },
 
     // ── 아구몬(흑) 계열 (사진 3 가운데 · 코로몬에서 갈라짐) ──
     { id: "agumonblack",   name: "아구몬(흑)",        p: "koromon", cond: 1 },
     { id: "greymonblack",  name: "그레이몬(흑)",      p: "agumonblack", cost: 1500 },
     { id: "metalgreymonblack", name: "메탈그레이몬(흑)", p: "greymonblack", cost: 6000 },
-    { id: "blackwargreymon",   name: "블랙워그레이몬",  p: "metalgreymonblack", cost: 35000, box: 1 },
+    { id: "blackwargreymon",   name: "블랙워그레이몬",  p: "metalgreymonblack", cost: 35000 },
     { id: "blackwargreymonx",  name: "블랙워그레이몬X", p: "blackwargreymon", cond: 1 },
-    { id: "gaiomon",       name: "가이오몬",          p: "metalgreymonblack", box: 1, cond: 1 },
+    { id: "gaiomon",       name: "가이오몬",          p: "metalgreymonblack", cond: 1 },
     { id: "gaiomonblade",  name: "가이오몬 엄도의형", p: "gaiomon", cond: 1 },
-    { id: "blitzgreymon",  name: "블리츠그레이몬",    p: "metalgreymonblack", box: 1, cond: 1 },
+    { id: "blitzgreymon",  name: "블리츠그레이몬",    p: "metalgreymonblack", cond: 1 },
     { id: "greymonc",      name: "그레이몬(C)",       p: "agumonblack", cost: 1500, cond: 1 },
 
     // ── 츄몬 계열 (사진 3 아래 · 코로몬에서 갈라짐) ──
     { id: "chumon",        name: "츄몬",              p: "koromon", cond: 1 },
     { id: "scumon",        name: "스카몬",            p: "chumon", cost: 1400 },
     { id: "etemon",        name: "에테몬",            p: "scumon", cost: 7000 },
-    { id: "metaletemon",   name: "메탈에테몬",        p: "etemon", cost: 40000, box: 1, cond: 1 },
+    { id: "metaletemon",   name: "메탈에테몬",        p: "etemon", cost: 40000, cond: 1 },
     { id: "kingetemon",    name: "킹에테몬",          p: "etemon", cond: 1 },
     { id: "bombmoyamon",   name: "폭탄모야몬",        p: "chumon", cond: 1 },
     { id: "woremon",       name: "워매몬",            p: "chumon", cond: 1 },
@@ -73,7 +74,7 @@ window.EVO = {
     { id: "betamon",       name: "베타몬",            p: "koromon", cond: 1, assumed: 1 },
     { id: "seadramon",     name: "시드라몬",          p: "betamon", cost: 1400 },
     { id: "megaseadramon", name: "메가시드라몬",      p: "seadramon", cost: 5200 },
-    { id: "metalseadramon",name: "메탈시드라몬",      p: "megaseadramon", cost: 70000, box: 1 },
+    { id: "metalseadramon",name: "메탈시드라몬",      p: "megaseadramon", cost: 70000 },
     { id: "gigaseadramon", name: "기가시드라몬",      p: "metalseadramon", cond: 1 },
 
     { id: "hackmon",       name: "혁몬",              p: "koromon", cond: 1, assumed: 1 },
@@ -98,7 +99,7 @@ window.EVO = {
     { id: "kunemon",       name: "쿠네몬",            p: "daerongmon", cost: "200~279" },
     { id: "kuwamon",       name: "쿠와몬",            p: "kunemon", cost: 1300 },
     { id: "okuwamon",      name: "오쿠와몬",          p: "kuwamon", cost: 5600 },
-    { id: "grancuga",      name: "그랜쿠가몬",        p: "okuwamon", box: 1 },
+    { id: "grancuga",      name: "그랜쿠가몬",        p: "okuwamon" },
     { id: "grandiscuga",   name: "그랑디스쿠가몬",    p: "grancuga", cost: 300000 },
 
     // ── 샤우트몬 계열 (사진 5) · 합체가 많다 ──
@@ -106,7 +107,7 @@ window.EVO = {
     // 빨간 ✕ 는 "합체 재료", 빨간 ⇊ 는 "합체 결과"로 읽었다. 재료는 결과의 앞 단계 밑에 점선 칸으로 붙인다.
     { id: "shoutmon",      name: "샤우트몬",          p: "daerongmon", cost: "70~399", assumed: 1 },
     { id: "baristamon",    name: "바리스타몬",        p: "shoutmon", mat: 1 },
-    { id: "shoutmonx2",    name: "샤우트몬X2",        p: "shoutmon", box: 1, fuse: ["shoutmon", "baristamon"] },
+    { id: "shoutmonx2",    name: "샤우트몬X2",        p: "shoutmon", fuse: ["shoutmon", "baristamon"] },
     { id: "dorulumon",     name: "도루루몬",          p: "shoutmonx2", mat: 1 },
     { id: "shoutmonx3",    name: "샤우트몬X3",        p: "shoutmonx2", fuse: ["shoutmonx2", "dorulumon"] },
     { id: "starmons",      name: "스타몬즈",          p: "shoutmonx3", mat: 1 },
@@ -125,17 +126,17 @@ window.EVO = {
     { id: "gilmon",        name: "길몬",              p: "gigimon", cost: 400 },
     { id: "graumon",       name: "그라우몬",          p: "gilmon", cost: 2100 },
     { id: "megagraumon",   name: "메가그라우몬",      p: "graumon", cost: 9000 },
-    { id: "dukemon",       name: "듀크몬",            p: "megagraumon", cost: 54000, box: 1 },
-    { id: "dukemonx",      name: "듀크몬X",           p: "dukemon", box: 1 },
-    { id: "dukemoncrimson",name: "듀크몬 크림즌",     p: "dukemon", box: 1 },
-    { id: "medievaldukemon",name:"메디벌듀크몬",      p: "megagraumon", box: 1 },
-    { id: "megidramon",    name: "메기드라몬",        p: "megagraumon", box: 1 },
+    { id: "dukemon",       name: "듀크몬",            p: "megagraumon", cost: 54000 },
+    { id: "dukemonx",      name: "듀크몬X",           p: "dukemon" },
+    { id: "dukemoncrimson",name: "듀크몬 크림즌",     p: "dukemon" },
+    { id: "medievaldukemon",name:"메디벌듀크몬",      p: "megagraumon" },
+    { id: "megidramon",    name: "메기드라몬",        p: "megagraumon" },
     { id: "megidramonx",   name: "메기드라몬X",       p: "megidramon" },
     { id: "gilmonx",       name: "길몬X",             p: "gilmon" },
     { id: "gilmonblack",   name: "길몬(흑)",          p: "gigimon", cost: 400 },
     { id: "graumonblack",  name: "그라우몬(흑)",      p: "gilmonblack", cost: 2600 },
     { id: "megagraumonblack", name: "메가그라우몬(흑)", p: "graumonblack", cost: 9600 },
-    { id: "chaosdukemon",  name: "카오스듀크몬",      p: "megagraumonblack", cost: 70000, box: 1 },
+    { id: "chaosdukemon",  name: "카오스듀크몬",      p: "megagraumonblack", cost: 70000 },
     { id: "chaosdukemoncore", name: "카오스듀크몬 코어", p: "chaosdukemon" },
     // 사진 7은 사진 6 아래쪽 줄기가 이어진 것이다. 어디서 갈라지는지는 안 보여서 기기몬 밑에 붙였다(추정).
     { id: "chubumon",      name: "초브몬",            p: "gigimon", assumed: 1 },
@@ -143,7 +144,7 @@ window.EVO = {
     { id: "armamon",       name: "아르마몬",          p: "upamon", cost: 50000 },
     { id: "goldarmamon",   name: "황금아르마몬",      p: "armamon", cost: 250000 },
     { id: "toumon",        name: "토우몬",            p: "goldarmamon", req: "r_toumon" },
-    { id: "lampmon",       name: "램프몬",            p: "toumon", box: 1 },
+    { id: "lampmon",       name: "램프몬",            p: "toumon" },
 
     // ── 포요몬 계열 (사진 8) ──
     { id: "egg8",          name: "알",                p: null },
@@ -152,17 +153,17 @@ window.EVO = {
     { id: "padamon",       name: "파닥몬",            p: "tokomon", cost: 260 },
     { id: "angemon",       name: "엔젤몬",            p: "padamon", cost: 1250 },
     { id: "holyangemon",   name: "홀리엔젤몬",        p: "angemon", cost: 5300 },
-    { id: "seraphimon",    name: "세라피몬",          p: "holyangemon", cost: 45000, box: 1 },
-    { id: "blackseraphimon",name:"블랙세라피몬",      p: "seraphimon", box: 1 },
+    { id: "seraphimon",    name: "세라피몬",          p: "holyangemon", cost: 45000 },
+    { id: "blackseraphimon",name:"블랙세라피몬",      p: "seraphimon" },
     { id: "dominimon",     name: "도미니몬",          p: "holyangemon", cost: 45000 },
-    { id: "kurabis",       name: "쿨라비스엔젤몬",    p: "holyangemon", box: 1 },
-    { id: "seiryumon",     name: "청룡몬",            p: "holyangemon", box: 1 },
+    { id: "kurabis",       name: "쿨라비스엔젤몬",    p: "holyangemon" },
+    { id: "seiryumon",     name: "청룡몬",            p: "holyangemon" },
     { id: "panryumon",     name: "판룡몬",            p: "seiryumon" },
     { id: "panryumonruin", name: "판룡몬 Ruin",       p: "panryumon" },
     { id: "pegasusmon",    name: "페가수스몬",        p: "padamon" },
     { id: "piccolomon",    name: "피콜몬",            p: "angemon" },
-    { id: "marinangemon",  name: "마린엔젤몬",        p: "piccolomon", box: 1 },
-    { id: "bacchusmon",    name: "바커스몬",          p: "piccolomon", box: 1 },
+    { id: "marinangemon",  name: "마린엔젤몬",        p: "piccolomon" },
+    { id: "bacchusmon",    name: "바커스몬",          p: "piccolomon" },
 
     // ── 새싹몬 계열 (사진 9) ──
     { id: "egg9",          name: "알",                p: null },
@@ -171,9 +172,9 @@ window.EVO = {
     { id: "piyomon",       name: "피요몬",            p: "onimon", cost: 230 },
     { id: "birdramon",     name: "버드라몬",          p: "piyomon", cost: 1150 },
     { id: "garudamon",     name: "가루다몬",          p: "birdramon", cost: 5100 },
-    { id: "phoenixmon",    name: "페닉스몬",          p: "garudamon", cost: 62000, box: 1 },
-    { id: "jujakmon",      name: "주작몬",            p: "garudamon", box: 1 },
-    { id: "fujinmon",      name: "풍신몬",            p: "garudamon", box: 1 },
+    { id: "phoenixmon",    name: "페닉스몬",          p: "garudamon", cost: 62000 },
+    { id: "jujakmon",      name: "주작몬",            p: "garudamon" },
+    { id: "fujinmon",      name: "풍신몬",            p: "garudamon" },
     { id: "onismon",       name: "오니스몬",          p: "garudamon" },
     { id: "airdramon",     name: "에어드라몬",        p: "piyomon", cost: "1100~1149" },
     { id: "megadramon",    name: "메가드라몬",        p: "airdramon", cost: 6000 },
@@ -205,13 +206,13 @@ window.EVO = {
     { id: "lalamon",       name: "라라몬",            p: "birdmon", cost: 220 },
     { id: "sunflowmon",    name: "해바라기몬",        p: "lalamon", cost: 1100 },
     { id: "lylamon",       name: "라일라몬",          p: "sunflowmon", cost: 5000 },
-    { id: "rosemon",       name: "로제몬",            p: "lylamon", box: 1 },
+    { id: "rosemon",       name: "로제몬",            p: "lylamon" },
     { id: "rosemonburst",  name: "로제몬 Burst",      p: "rosemon" },
-    { id: "rosemonx",      name: "로제몬X",           p: "rosemon", box: 1 },
+    { id: "rosemonx",      name: "로제몬X",           p: "rosemon" },
     { id: "mushmon",       name: "머슈몬",            p: "birdmon" },
     { id: "woodmon",       name: "우드몬",            p: "mushmon", cost: 1200 },
     { id: "jureimon",      name: "쥬레이몬",          p: "woodmon", cost: 5000 },
     { id: "eldoradimon",   name: "엘도라디몬",        p: "jureimon" },
-    { id: "pinochimon",    name: "피노키몬",          p: "jureimon", cost: 35000, box: 1 }
+    { id: "pinochimon",    name: "피노키몬",          p: "jureimon", cost: 35000 }
   ]
 };

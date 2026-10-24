@@ -228,8 +228,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 <div id="upd" role="button"></div>
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js?v=20261024d"></script>
-<script src="img.js?v=20261024d"></script>
+<script src="data.js?v=20261024e"></script>
+<script src="img.js?v=20261024e"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -277,11 +277,11 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     var top="";
     if(src("c_"+n.id)) top+=pic("c_"+n.id,"조건");
     if(src("c2_"+n.id)) top+=pic("c2_"+n.id,"조건");
-    if(n.n) top+='<span class="cn">×'+n.n+'</span>';
+    if(n.n) top+='<span class="cn">'+n.n+'</span>';
     if(n.cost!=null) top+=pic("cost","")+'<span>'+num(n.cost)+'</span>';
     b.appendChild(el("div","top",top));
     var art=el("div","art",pic(n.id,n.name)); b.appendChild(art);
-    var nm=(n.box?pic("box","")+" ":"")+'<span>'+esc(n.name)+'</span>'+pic("a_"+n.id,"")+(n.mat?'<em class="tag">재료</em>':"")+(n.fuse?'<em class="tag f">합체</em>':"");
+    var nm='<span>'+esc(n.name)+'</span>'+pic("a_"+n.id,"")+(n.mat?'<em class="tag">재료</em>':"")+(n.fuse?'<em class="tag f">합체</em>':"");
     b.appendChild(el("div","nm",nm));
     var im=art.querySelector("img");
     if(im){
@@ -325,7 +325,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     if(n.cost!=null) chips+='<span class="chip">'+pic("cost","")+'진화 수치 <b>'+num(n.cost)+'</b></span>';
     if(src("c_"+n.id)){
       var lab=ICONS["c_"+n.id];
-      chips+='<span class="chip">'+pic("c_"+n.id,"")+(lab?esc(lab):"조건")+(n.n?' <b>×'+n.n+'</b>':"")+'</span>';
+      chips+='<span class="chip">'+pic("c_"+n.id,"")+(lab?esc(lab):"조건")+(n.n?' <b>'+n.n+'</b>':"")+'</span>';
     }
     if(src("c2_"+n.id)) chips+='<span class="chip">'+pic("c2_"+n.id,"")+'조건</span>';
     if(n.mat) chips+='<span class="chip">합체 재료</span>';
@@ -333,7 +333,6 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
       var al=ICONS["a_"+n.id];
       chips+='<span class="chip">'+pic("a_"+n.id,"")+(al?esc(al):"속성")+'</span>';
     }
-    if(n.box) chips+='<span class="chip">'+pic("box","")+(ICONS.box?esc(ICONS.box):"표시")+'</span>';
     var h='<button class="btn x" data-close aria-label="닫기">✕</button>'+
       '<div class="hd"><div class="bigart">'+pic(n.id,n.name)+'</div><div><h2>'+esc(n.name)+'</h2><div class="meta">'+chips+'</div></div></div>';
     var p=pathOf(id);
@@ -400,7 +399,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   document.getElementById("bgb").onclick=function(){ setLight(!light); };
 
   // 새 버전 알림: 폰이 예전 화면을 계속 열어 두고 있어도, 새 버전이 있으면 알려 준다
-  var BUILD="20261024d";
+  var BUILD="20261024e";
   try{
     fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
       t=(t||"").trim(); if(t&&t!==BUILD){
@@ -454,7 +453,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 
   // ── 안내 ──
   var lg=document.getElementById("legend");
-  lg.innerHTML='<b>보는 법</b> &nbsp; '+pic("cost","")+' 숫자 = 그 단계로 진화할 때 필요한 수치 · 이름 뒤 작은 그림 = 속성 아이콘 · 이름 앞 '+pic("box","")+' 와 위쪽 그림은 게임 진화표에 있는 표시를 그대로 옮긴 것입니다.<br>'+
+  lg.innerHTML='<b>보는 법</b> &nbsp; '+pic("cost","")+' 숫자 = 그 단계로 진화할 때 필요한 수치 · 이름 뒤 작은 그림 = 속성 아이콘 · 위쪽 그림은 게임 진화표에 있는 표시를 그대로 옮긴 것입니다.<br>'+
     '이름 뒤에 <b style="color:var(--gold)">?</b> 가 붙은 몬스터는 사진이 잘려 갈라지는 자리를 추정했습니다.';
 })();
 </script>
