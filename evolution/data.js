@@ -214,6 +214,49 @@ window.EVO = {
     { id: "woodmon",       name: "우드몬",            p: "mushmon", cost: 1200 },
     { id: "jureimon",      name: "쥬레이몬",          p: "woodmon", cost: 5000 },
     { id: "eldoradimon",   name: "엘도라디몬",        p: "jureimon" },
-    { id: "pinochimon",    name: "피노키몬",          p: "jureimon", cost: 35000 }
+    { id: "pinochimon",    name: "피노키몬",          p: "jureimon", cost: 35000 },
+
+    // ── 뽀글몬 계열 (사진 12 · 11 위쪽) ──
+    // 사진 12 의 뽀글몬 줄기(왼쪽 세로선)가 아래로 이어져 사진 11 맨 위의 줄기와 이어진다. 치빅크몬은 뽀글몬에서 갈라진다.
+    { id: "egg12",         name: "알",                p: null },
+    { id: "bbogulmon",     name: "뽀글몬",            p: "egg12" },
+    { id: "motimon",       name: "모티몬",            p: "bbogulmon", cost: 50 },
+    { id: "tentamon",      name: "텐타몬",            p: "motimon", cost: 240 },
+    { id: "captermon",     name: "캅테리몬",          p: "tentamon", cost: 1200 },
+    { id: "atracaptermon", name: "아트라캅테리몬",    p: "captermon", cost: 5300 },
+    { id: "heraclescaptermon", name: "헤라클레스캅테리몬", p: "atracaptermon", cost: 30000 },
+    { id: "heraclescaptermonx", name: "헤라클레스캅테리몬X", p: "heraclescaptermon" },
+    { id: "hyunmumon",     name: "현무몬",            p: "atracaptermon" },
+    { id: "ultongmon",     name: "울퉁몬",            p: "motimon", cost: "200~239" },
+    { id: "icemon",        name: "아이스몬",          p: "ultongmon", cost: 1300 },
+    { id: "unseokmon",     name: "운석몬",            p: "icemon", cost: 6000 },
+    { id: "rockmon",       name: "록몬",              p: "ultongmon", cost: "1000~1299" },
+    { id: "bulkemon",      name: "불케몬",            p: "rockmon" },
+    { id: "pailbulkemon",  name: "파일불케몬",        p: "bulkemon" },
+    { id: "ultongmonx",    name: "울퉁몬X",           p: "ultongmon" },
+    { id: "monochromon",   name: "모노크로몬",        p: "ultongmon", cost: "1000~1299" },
+    { id: "tricerramon",   name: "트리케라몬",        p: "monochromon", cost: 5200 },
+    { id: "dinorexmon",    name: "다이노렉스몬",      p: "tricerramon" },
+    { id: "chimeramon",    name: "키메라몬",          p: "monochromon" },
+    { id: "millenniummon", name: "밀레니엄몬",        p: "chimeramon" },
+    { id: "moonmillenniummon", name: "문밀레니엄몬",  p: "millenniummon" },
+    { id: "zhudmillenniummon", name: "지드밀레니엄몬", p: "moonmillenniummon", cost: 300000 },
+    { id: "chibikmon",     name: "치빅크몬",          p: "bbogulmon" },
+    { id: "pickmon",       name: "픽크몬",            p: "chibikmon", cost: 500 },
+    { id: "starmon",       name: "스타몬",            p: "pickmon", cost: 5000 },
+
+    // ── 제리몬 계열 (사진 11) ──
+    { id: "egg11",         name: "알",                p: null },
+    { id: "jerimon",       name: "제리몬",            p: "egg11" },
+    { id: "gumimon",       name: "구미몬",            p: "jerimon", cost: 50 },
+    { id: "terriermon",    name: "테리어몬",          p: "gumimon", cost: 230 },
+    { id: "gargomon",      name: "가르고몬",          p: "terriermon", cost: 1200 },
+    { id: "rapidmon",      name: "래피드몬",          p: "gargomon", cost: 5000 },
+    { id: "saintgargomon", name: "세인트가르고몬",    p: "rapidmon", cost: 30000 },
+    { id: "shuishinmon",   name: "수신몬",            p: "rapidmon" },
+    { id: "raidenmon",     name: "라이덴몬",          p: "shuishinmon", cost: 28000 },
+    { id: "blackgargomon", name: "블랙가르고몬",      p: "terriermon" },
+    { id: "blackrapidmon", name: "블랙래피드몬",      p: "blackgargomon" },
+    { id: "blacksaintgargomon", name: "블랙세인트가르고몬", p: "blackrapidmon" }
   ]
 };
