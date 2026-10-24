@@ -87,14 +87,14 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .node.path{border-color:var(--cyan);border-style:dashed}
 .node.hit{background:#3a2a10;border-color:var(--gold)}
 .node.dim{opacity:.35}
-.top{min-height:26px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--cyan)}
-.top img{height:20px;width:auto}
+.top{min-height:26px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--mono);font-size:max(12px,calc(9.5px / var(--k,1)));font-weight:600;color:var(--cyan)}
+.top img{height:max(20px,calc(15px / var(--k,1)));width:auto}
 .top .cn{color:var(--ink)}
 .art{min-height:64px;display:flex;align-items:flex-end;justify-content:center}
 .art img{image-rendering:pixelated}
 .art img.soft,.bigart img.soft{image-rendering:auto}
-.nm{margin-top:4px;font-size:13px;font-weight:600;line-height:1.25;word-break:keep-all;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px}
-.nm img{height:16px;width:auto}
+.nm{margin-top:4px;font-size:max(13px,calc(10.5px / var(--k,1)));font-weight:600;line-height:1.25;word-break:keep-all;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px}
+.nm img{height:max(16px,calc(12px / var(--k,1)));width:auto}
 .assumed .nm::after{content:"?";color:var(--gold);font-family:var(--mono);font-size:11px}
 /* 여러 알에서 시작하는 계통은 위아래로 나란히 놓는다 */
 #tree>ul.roots>li{margin-bottom:56px;padding-bottom:0}
@@ -104,8 +104,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .tag{font-style:normal;font-size:10px;font-weight:600;color:var(--ground);background:var(--dim);padding:0 4px;line-height:1.5;margin-left:2px}
 .tag.f{background:#ff6b6b}
 /* 칸은 최소 너비만 정하고 큰 그림이면 그만큼 넓어진다. 이름은 최소 너비 안에서 줄바꿈 */
-.node{width:auto;min-width:118px;-webkit-tap-highlight-color:transparent}
-.nm{max-width:118px;margin-left:auto;margin-right:auto}
+.node{width:auto;min-width:max(118px,calc(84px / var(--k,1)));-webkit-tap-highlight-color:transparent}
+.nm{max-width:max(118px,calc(84px / var(--k,1)));margin-left:auto;margin-right:auto}
 
 
 
@@ -137,6 +137,21 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .req img{max-width:100%;height:auto;display:block}
 .note{margin:6px 0 0;color:var(--dim);font-size:13px;white-space:pre-wrap}
 .x{float:right;margin:-6px -6px 0 0}
+
+/* 밝은 배경: 게임 진화표 그대로 흰 바탕. 검정·보라 아이콘과 몬스터의 검은 윤곽이 어두운 바탕에서 묻히는 걸 막는다 */
+.scroller.light{background:#f4f1fb;color:#1b1530}
+.scroller.light .node,.scroller.light .nm{color:#1b1530}
+@media (hover:hover){.scroller.light .node:hover{background:#e6e0f3;border-color:#b9afd6}}
+.scroller.light .node.sel{background:#ddd4f4;border-color:#2a8fa0}
+.scroller.light .node.path{border-color:#2a8fa0}
+.scroller.light .node.hit{background:#ffe3a6;border-color:#c98400}
+.scroller.light .node.mat{border-color:#a89fc4}
+.scroller.light .top{color:#0b7285}
+.scroller.light .top .cn{color:#1b1530}
+.scroller.light .tag{background:#6b5f8f;color:#fff}
+.scroller.light .tag.f{background:#d6336c}
+#upd{position:fixed;left:0;right:0;top:0;z-index:30;background:#ffb45c;color:#1b1530;font-weight:700;font-size:14px;padding:12px 14px;text-align:center;cursor:pointer;display:none}
+#upd.on{display:block}
 
 /* 계통 바로가기 */
 .lines{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -197,6 +212,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   <input id="q" type="search" placeholder="몬스터 이름 검색" autocomplete="off" aria-label="몬스터 이름 검색">
   <button class="btn" id="zo" aria-label="줄이기">−</button>
   <button class="btn" id="zi" aria-label="키우기">＋</button>
+  <button class="btn" id="bgb" aria-label="배경 밝게/어둡게">◐</button>
   <span class="hint" id="cnt"></span>
 </div>
 
@@ -209,10 +225,11 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 
 </div>
 
+<div id="upd" role="button"></div>
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js?v=20261024c"></script>
-<script src="img.js?v=20261024c"></script>
+<script src="data.js?v=20261024d"></script>
+<script src="img.js?v=20261024d"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -374,6 +391,24 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   setZ(z);
   document.getElementById("zo").onclick=function(){setZ(z-.15);};
   document.getElementById("zi").onclick=function(){setZ(z+.15);};
+
+  // 배경 밝게/어둡게 (처음엔 밝게)
+  var sc0=document.querySelector(".scroller"), light=true;
+  try{ if(localStorage.getItem("evoLight")==="0") light=false; }catch(e){}
+  function setLight(v){ light=v; sc0.classList.toggle("light",v); try{localStorage.setItem("evoLight",v?"1":"0");}catch(e){} }
+  setLight(light);
+  document.getElementById("bgb").onclick=function(){ setLight(!light); };
+
+  // 새 버전 알림: 폰이 예전 화면을 계속 열어 두고 있어도, 새 버전이 있으면 알려 준다
+  var BUILD="20261024d";
+  try{
+    fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
+      t=(t||"").trim(); if(t&&t!==BUILD){
+        var u=document.getElementById("upd"); u.textContent="새 버전이 있어요 — 여기를 눌러 새로고침"; u.classList.add("on");
+        u.onclick=function(){ location.href=location.pathname+"?v="+Date.now(); };
+      }
+    }).catch(function(){});
+  }catch(e){}
 
   // 두 손가락으로 벌리거나 모으면 크기 조절 (브라우저 확대는 도트를 뭉개므로 직접 처리)
   var sc=document.querySelector(".scroller"), pinch=null;
