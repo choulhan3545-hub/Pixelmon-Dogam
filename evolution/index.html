@@ -232,8 +232,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 <div id="upd" role="button"></div>
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js?v=20261025a"></script>
-<script src="img.js?v=20261025a"></script>
+<script src="data.js?v=20261025b"></script>
+<script src="img.js?v=20261025b"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -403,7 +403,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   document.getElementById("bgb").onclick=function(){ setLight(!light); };
 
   // 새 버전 알림: 폰이 예전 화면을 계속 열어 두고 있어도, 새 버전이 있으면 알려 준다
-  var BUILD="20261025a";
+  var BUILD="20261025b";
   try{
     fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
       t=(t||"").trim(); if(t&&t!==BUILD){
