@@ -84,6 +84,8 @@ button{cursor:pointer}
 .row:hover{border-color:var(--cyan);background:var(--raised)}
 .row .egg{flex:none;min-width:58px;font-family:var(--title);font-size:17px;color:var(--gold);line-height:1.2}
 .row .mon{flex:1;min-width:0;font-weight:500;word-break:keep-all;line-height:1.35}
+.row .mon small{display:block;margin-top:1px;font-size:11.5px;color:var(--dimmer);font-weight:400}
+.tagnote{color:var(--cyan)}
 .row .go{flex:none;color:var(--dimmer);font-size:13px}
 .row mark{background:none;color:var(--cyan);font-weight:600}
 .empty{padding:46px 16px;text-align:center;color:var(--dim)}
@@ -202,14 +204,14 @@ footer b{color:var(--ink);font-weight:600}
 </header>
 
 <ol class="how">
-  <li><span><b>검색</b> — 알 이름이나 몬스터 이름을 치세요. 초성도 됩니다 (<b>ㅇㅇ</b> → 용인)</span></li>
+  <li><span><b>검색</b> — 알 이름 · 몬스터 이름 · <b>속성</b>(불 · 얼음 …) · <b>타입</b>(총공 · 일공)을 치세요. 초성도 됩니다 (<b>ㅇㅇ</b> → 용인)</span></li>
   <li><span><b>거르기·선택</b> — 돌진 · 총공/일공으로 좁히고, 몬스터를 누르면 속성 · 상태이상 · 코스트 · 쿨타임이 나옵니다</span></li>
 </ol>
 
 <div class="searchbar">
   <div class="search" id="searchBox">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-    <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="알 이름이나 몬스터 이름" aria-label="알 이름이나 몬스터 이름으로 찾기">
+    <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="이름 · 속성 · 타입 (예: 용인, 불, 총공)" aria-label="알 이름이나 몬스터 이름으로 찾기">
     <button class="clear" id="qClear" type="button" aria-label="지우기">×</button>
   </div>
   <div class="filters" id="filters"></div>
@@ -273,6 +275,21 @@ M.forEach(function(m){
   m.cEgg = chosung(m.kEgg); m.cName = chosung(m.kName);
 });
 
+/* ---------- 속성 · 타입으로 찾기 ----------
+   검색창에 속성(불 · 얼음 …), 타입(총공 · 일공 · 힐), 상태이상(빙결 · 기절 · 침묵),
+   색, 돌진 을 그대로 치면 그 몬스터만 나온다. */
+var TAGKEY = {};   // 검색어 -> true
+M.forEach(function(m){
+  var t = [m.el, m.color];
+  m.atk.split("+").forEach(function(a){ t.push(a) });
+  if(m.atk.indexOf("+") > 0) t.push(m.atk);
+  m.cc.forEach(function(c){ t.push(c) });
+  if(m.dash) t.push("돌진");
+  m.tags = t.map(norm);
+  m.tags.forEach(function(k){ TAGKEY[k] = true });
+  m.badge = [m.el, m.atk].concat(m.cc, [m.color + "색"], m.dash ? ["돌진"] : []).join(" · ");
+});
+
 /* ---------- 목록 ---------- */
 // 알 이름이 맞으면 먼저, 그다음 몬스터 이름, 앞에서부터 맞는 것 먼저
 function score(m, q){
@@ -329,9 +346,12 @@ function buildFilters(){
 
 function renderList(){
   var raw = $("q").value, q = norm(raw);
+  var byTag = !!q && !!TAGKEY[q];   // 속성 · 타입 이름 그대로 쳤을 때
   $("searchBox").classList.toggle("has", !!raw);
   var list = M.filter(passFilter);
-  if(q){
+  if(byTag){
+    list = list.filter(function(m){ return m.tags.indexOf(q) >= 0 });
+  } else if(q){
     list = list.map(function(m){ return [score(m, q), m] })
             .filter(function(p){ return p[0] >= 0 })
             .sort(function(a, b){ return a[0] - b[0] || a[1].i - b[1].i })
@@ -339,7 +359,7 @@ function renderList(){
   }
   var narrowed = q || f.dash || f.atk;
   $("count").innerHTML = narrowed
-    ? '<b>' + list.length + '</b>마리 찾음' + (list.length === 1 ? ' — Enter 를 누르면 바로 열립니다' : '')
+    ? '<b>' + list.length + '</b>마리 찾음' + (byTag ? ' <span class="tagnote">· "' + esc(raw.trim()) + '" 로 찾음' + '</span>' : '') + (list.length === 1 ? ' — Enter 를 누르면 바로 열립니다' : '')
     : '전체 <b>' + M.length + '</b>마리 · 왼쪽 노란 글자가 <b>알 이름</b>, 오른쪽이 각성 몬스터';
   if(!list.length){
     $("list").innerHTML = '<div class="empty"><b>찾는 몬스터가 없어요</b>글자를 줄이거나 초성으로 쳐 보세요.' +
@@ -349,7 +369,7 @@ function renderList(){
   $("list").innerHTML = list.map(function(m){
     return '<button class="row" type="button" data-i="' + m.i + '">' +
       '<span class="egg">' + hl(m.egg, q) + '</span>' +
-      '<span class="mon">' + hl(m.name, q) + '</span>' +
+      '<span class="mon">' + hl(m.name, byTag ? "" : q) + (byTag ? '<small>' + esc(m.badge) + '</small>' : '') + '</span>' +
       '<span class="go" aria-hidden="true">›</span></button>';
   }).join("");
   return list;
