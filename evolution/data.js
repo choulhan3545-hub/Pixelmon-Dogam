@@ -257,6 +257,30 @@ window.EVO = {
     { id: "raidenmon",     name: "라이덴몬",          p: "shuishinmon", cost: 28000 },
     { id: "blackgargomon", name: "블랙가르고몬",      p: "terriermon" },
     { id: "blackrapidmon", name: "블랙래피드몬",      p: "blackgargomon" },
-    { id: "blacksaintgargomon", name: "블랙세인트가르고몬", p: "blackrapidmon" }
+    { id: "blacksaintgargomon", name: "블랙세인트가르고몬", p: "blackrapidmon" },
+
+    // ── 키몬 계열 (사진 14 · 13 아래쪽) ──
+    // 사진 14 의 임프몬 줄기(왼쪽 세로선)가 아래로 이어져 사진 13 맨 위의 줄기와 이어진다. 베르제브몬은 임프몬에서 갈라진다.
+    { id: "egg14",         name: "알",                p: null },
+    { id: "kimon",         name: "키몬",              p: "egg14" },
+    { id: "yamon",         name: "야몬",              p: "kimon", cost: 60 },
+    { id: "impmon",        name: "임프몬",            p: "yamon", cost: 270 },
+    { id: "devimon",       name: "데블몬",            p: "impmon", cost: "~1299" },
+    { id: "skullsatanmon", name: "스컬사탄몬",        p: "devimon" },
+    { id: "gokumon",       name: "고쿠몬",            p: "skullsatanmon" },
+    { id: "myotismon",     name: "묘티스몬",          p: "devimon", cost: 5000 },
+    { id: "venommyotismon", name: "베놈묘티스몬",     p: "myotismon" },
+    { id: "verialmyotismon", name: "베리얼묘티스몬",  p: "myotismon", cost: 800000 },
+    { id: "barbamon",      name: "발바몬",            p: "myotismon" },
+    { id: "barbamonx",     name: "발바몬X",           p: "barbamon" },
+    { id: "neodevimon",    name: "네오데블몬",        p: "devimon" },
+    { id: "bukimon",       name: "부기몬",            p: "impmon", cost: 1300 },
+    { id: "peresmon",      name: "페레스몬",          p: "bukimon", cost: 5700 },
+    { id: "daemon",        name: "마왕몬",            p: "peresmon" },
+    { id: "daemonsuper",   name: "마왕몬 초궁극체",   p: "daemon" },
+    { id: "impmonx",       name: "임프몬X",           p: "impmon" },
+    { id: "beelzebumon",   name: "베르제브몬",        p: "impmon" },
+    { id: "beelzebumonblaster", name: "베르제브몬 블래스터", p: "beelzebumon" },
+    { id: "beelzebumonx",  name: "베르제브몬X",       p: "beelzebumon" }
   ]
 };

@@ -162,11 +162,11 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .lines button:hover,.lines button:active{border-color:var(--cyan);color:var(--cyan)}
 .tip{display:none}
 
-/* ── 폰: 화면을 꽉 채운 "지도"처럼. 위·아래·왼쪽·오른쪽으로 밀어서 본다 ── */
-@media (max-width:700px){
+/* ── 모든 화면: 창을 꽉 채운 "지도"처럼. 위·아래·왼쪽·오른쪽으로 밀어서(컴퓨터는 끌어서) 본다 ── */
+@media all{
   html,body{height:100%}
   body{display:flex;flex-direction:column;height:100vh;height:100dvh;padding-bottom:0;overflow:hidden}
-  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:0 8px}
+  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;max-width:none;padding:0 8px}
   .mast{padding:6px 0 2px;display:flex;align-items:center;gap:8px}
   .eyebrow,.sub{display:none}
   h1{font-size:20px;margin:0;white-space:nowrap}
@@ -180,6 +180,10 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   .lines::-webkit-scrollbar{display:none}
   .lines button{flex:none}
   .tip{display:block;font-size:11px;color:var(--dim);padding:0 0 4px}
+  .sitenav{max-width:100%}
+  .scroller{cursor:grab}
+  .scroller.drag{cursor:grabbing;user-select:none}
+  .scroller.drag .node{pointer-events:none}
   .scroller{flex:1;min-height:0;padding:10px 4px 80px;overscroll-behavior:contain;border-top:2px solid var(--edge-soft)}
   .legend{display:none}
 }
@@ -217,7 +221,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 </div>
 
 <div class="lines" id="lines" aria-label="계통 바로가기"></div>
-<div class="tip">손가락으로 밀어서 이동 · 두 손가락으로 확대/축소 · 몬스터를 누르면 자세히</div>
+<div class="tip">끌어서(폰은 밀어서) 이동 · −/＋ 또는 두 손가락으로 확대/축소 · 몬스터를 누르면 자세히</div>
 
 <div class="scroller"><div id="tree"></div></div>
 
@@ -228,8 +232,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 <div id="upd" role="button"></div>
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js?v=20261024g"></script>
-<script src="img.js?v=20261024g"></script>
+<script src="data.js?v=20261024h"></script>
+<script src="img.js?v=20261024h"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -399,7 +403,7 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   document.getElementById("bgb").onclick=function(){ setLight(!light); };
 
   // 새 버전 알림: 폰이 예전 화면을 계속 열어 두고 있어도, 새 버전이 있으면 알려 준다
-  var BUILD="20261024g";
+  var BUILD="20261024h";
   try{
     fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
       t=(t||"").trim(); if(t&&t!==BUILD){
@@ -451,6 +455,22 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   }
   sc.addEventListener("touchend",function(e){ if(e.touches.length<2) pinch=null; });
 
+
+  // 마우스로 끌어서 이동 (컴퓨터). 조금이라도 움직였으면 클릭으로 치지 않는다.
+  (function(){
+    var s=document.querySelector(".scroller"), d=null, moved=false;
+    s.addEventListener("mousedown",function(e){
+      if(e.button!==0) return;
+      d={x:e.clientX,y:e.clientY,l:s.scrollLeft,t:s.scrollTop}; moved=false;
+    });
+    window.addEventListener("mousemove",function(e){
+      if(!d) return;
+      var dx=e.clientX-d.x, dy=e.clientY-d.y;
+      if(!moved&&Math.abs(dx)+Math.abs(dy)>5){ moved=true; s.classList.add("drag"); }
+      if(moved){ s.scrollLeft=d.l-dx; s.scrollTop=d.t-dy; }
+    });
+    window.addEventListener("mouseup",function(){ if(d&&moved){ var c=function(ev){ev.stopPropagation();ev.preventDefault();}; s.addEventListener("click",c,{capture:true,once:true}); } d=null; s.classList.remove("drag"); });
+  })();
   // ── 안내 ──
   var lg=document.getElementById("legend");
   lg.innerHTML='<b>보는 법</b> &nbsp; '+pic("cost","")+' 숫자 = 그 단계로 진화할 때 필요한 수치 · 이름 뒤 작은 그림 = 속성 아이콘 · 위쪽 그림은 게임 진화표에 있는 표시를 그대로 옮긴 것입니다.<br>'+
