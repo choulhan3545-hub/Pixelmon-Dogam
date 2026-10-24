@@ -70,14 +70,14 @@ window.EVO = {
     { id: "shinmonzaemon", name: "신몬자에몬",        p: "puppetmon", cond: 1 },
 
     // ── 베타몬 계열 · 혁몬 계열 (사진 1) ──
-    // 사진 1은 왼쪽 가지가 위로 이어진 채 잘려 있다. 코로몬에서 갈라진다고 보고 붙였다(추정).
-    { id: "betamon",       name: "베타몬",            p: "koromon", cond: 1, assumed: 1 },
+    // 사진 1 맨 위 세로선은 사진 2 코로몬 줄기의 세로선이 이어진 것이다(위치가 같다). 베타몬·혁몬은 코로몬에서 갈라진다.
+    { id: "betamon",       name: "베타몬",            p: "koromon" },
     { id: "seadramon",     name: "시드라몬",          p: "betamon", cost: 1400 },
     { id: "megaseadramon", name: "메가시드라몬",      p: "seadramon", cost: 5200 },
     { id: "metalseadramon",name: "메탈시드라몬",      p: "megaseadramon", cost: 70000 },
     { id: "gigaseadramon", name: "기가시드라몬",      p: "metalseadramon", cond: 1 },
 
-    { id: "hackmon",       name: "혁몬",              p: "koromon", cond: 1, assumed: 1 },
+    { id: "hackmon",       name: "혁몬",              p: "koromon" },
     { id: "baohackmon",    name: "바오혁몬",          p: "hackmon", cost: 10000 },
     { id: "saberhackmon",  name: "세이버혁몬",        p: "baohackmon", cost: 100000 },
     { id: "jesmon",        name: "제스몬",            p: "saberhackmon", cond: 1 },
@@ -102,24 +102,7 @@ window.EVO = {
     { id: "grancuga",      name: "그랜쿠가몬",        p: "okuwamon" },
     { id: "grandiscuga",   name: "그랑디스쿠가몬",    p: "grancuga", cost: 300000 },
 
-    // ── 샤우트몬 계열 (사진 5) · 합체가 많다 ──
-    // 사진 5는 위가 잘려 있어 샤우트몬이 어디서 갈라지는지 보이지 않는다. 대롱몬에서 이어진 것으로 두었다(추정).
-    // 빨간 ✕ 는 "합체 재료", 빨간 ⇊ 는 "합체 결과"로 읽었다. 재료는 결과의 앞 단계 밑에 점선 칸으로 붙인다.
-    { id: "shoutmon",      name: "샤우트몬",          p: "daerongmon", cost: "70~399", assumed: 1 },
-    { id: "baristamon",    name: "바리스타몬",        p: "shoutmon", mat: 1 },
-    { id: "shoutmonx2",    name: "샤우트몬X2",        p: "shoutmon", fuse: ["shoutmon", "baristamon"] },
-    { id: "dorulumon",     name: "도루루몬",          p: "shoutmonx2", mat: 1 },
-    { id: "shoutmonx3",    name: "샤우트몬X3",        p: "shoutmonx2", fuse: ["shoutmonx2", "dorulumon"] },
-    { id: "starmons",      name: "스타몬즈",          p: "shoutmonx3", mat: 1 },
-    { id: "shoutmonx4",    name: "샤우트몬X4",        p: "shoutmonx3", fuse: ["shoutmonx3", "starmons"] },
-    { id: "sparrowmon",    name: "스패로우몬",        p: "shoutmonx4", mat: 1 },
-    { id: "shoutmonx5",    name: "샤우트몬X5",        p: "shoutmonx4", fuse: ["shoutmonx4", "sparrowmon"] },
-    { id: "omegashoutmonx",name: "오메가샤우트몬X",   p: "shoutmon" },
-    { id: "zeegreymon",    name: "지크그레이몬",      p: "omegashoutmonx", mat: 1 },
-    { id: "shoutmonx7",    name: "샤우트몬X7",        p: "omegashoutmonx", fuse: ["omegashoutmonx", "zeegreymon", "shoutmonx5"] },
-    { id: "shoutmonx7sup", name: "샤우트몬X7 슈페리올", p: "shoutmonx7" },
-
-    // ── 자리몬 계열 (사진 6 · 7) ──
+    // ── 자리몬 계열 (사진 6 · 5) ──
     { id: "egg6",          name: "알",                p: null },
     { id: "jarimon",       name: "자리몬",            p: "egg6" },
     { id: "gigimon",       name: "기기몬",            p: "jarimon", cost: 70 },
@@ -138,15 +121,26 @@ window.EVO = {
     { id: "megagraumonblack", name: "메가그라우몬(흑)", p: "graumonblack", cost: 9600 },
     { id: "chaosdukemon",  name: "카오스듀크몬",      p: "megagraumonblack", cost: 70000 },
     { id: "chaosdukemoncore", name: "카오스듀크몬 코어", p: "chaosdukemon" },
-    // 사진 7은 사진 6 아래쪽 줄기가 이어진 것이다. 어디서 갈라지는지는 안 보여서 기기몬 밑에 붙였다(추정).
-    { id: "chubumon",      name: "초브몬",            p: "gigimon", assumed: 1 },
-    { id: "upamon",        name: "우파몬",            p: "chubumon", cost: 5000 },
-    { id: "armamon",       name: "아르마몬",          p: "upamon", cost: 50000 },
-    { id: "goldarmamon",   name: "황금아르마몬",      p: "armamon", cost: 250000 },
-    { id: "toumon",        name: "토우몬",            p: "goldarmamon", req: "r_toumon" },
-    { id: "lampmon",       name: "램프몬",            p: "toumon" },
 
-    // ── 포요몬 계열 (사진 8) ──
+    // ── 샤우트몬 계열 (사진 5) · 합체가 많다 ──
+    // 사진 5는 사진 6 바로 아래에 이어진다(왼쪽 세로선 위치가 같다). 샤우트몬은 기기몬에서 갈라진다.
+    // 빨간 ✕ 는 "합체 재료", 빨간 ⇊ 는 "합체 결과"로 읽었다. 재료는 결과의 앞 단계 밑에 점선 칸으로 붙인다.
+    { id: "shoutmon",      name: "샤우트몬",          p: "gigimon", cost: "70~399" },
+    { id: "baristamon",    name: "바리스타몬",        p: "shoutmon", mat: 1 },
+    { id: "shoutmonx2",    name: "샤우트몬X2",        p: "shoutmon", fuse: ["shoutmon", "baristamon"] },
+    { id: "dorulumon",     name: "도루루몬",          p: "shoutmonx2", mat: 1 },
+    { id: "shoutmonx3",    name: "샤우트몬X3",        p: "shoutmonx2", fuse: ["shoutmonx2", "dorulumon"] },
+    { id: "starmons",      name: "스타몬즈",          p: "shoutmonx3", mat: 1 },
+    { id: "shoutmonx4",    name: "샤우트몬X4",        p: "shoutmonx3", fuse: ["shoutmonx3", "starmons"] },
+    { id: "sparrowmon",    name: "스패로우몬",        p: "shoutmonx4", mat: 1 },
+    { id: "shoutmonx5",    name: "샤우트몬X5",        p: "shoutmonx4", fuse: ["shoutmonx4", "sparrowmon"] },
+    { id: "omegashoutmonx",name: "오메가샤우트몬X",   p: "shoutmon" },
+    { id: "zeegreymon",    name: "지크그레이몬",      p: "omegashoutmonx", mat: 1 },
+    { id: "shoutmonx7",    name: "샤우트몬X7",        p: "omegashoutmonx", fuse: ["omegashoutmonx", "zeegreymon", "shoutmonx5"] },
+    { id: "shoutmonx7sup", name: "샤우트몬X7 슈페리올", p: "shoutmonx7" },
+
+
+    // ── 포요몬 계열 (사진 8 · 7) ──
     { id: "egg8",          name: "알",                p: null },
     { id: "poyomon",       name: "포요몬",            p: "egg8" },
     { id: "tokomon",       name: "토코몬",            p: "poyomon", cost: 50 },
@@ -164,6 +158,13 @@ window.EVO = {
     { id: "piccolomon",    name: "피콜몬",            p: "angemon" },
     { id: "marinangemon",  name: "마린엔젤몬",        p: "piccolomon" },
     { id: "bacchusmon",    name: "바커스몬",          p: "piccolomon" },
+    // 사진 7은 사진 8 바로 아래에 이어진다(왼쪽 세로선 위치가 같다). 초브몬은 포요몬에서 갈라진다.
+    { id: "chubumon",      name: "초브몬",            p: "poyomon" },
+    { id: "upamon",        name: "우파몬",            p: "chubumon", cost: 5000 },
+    { id: "armamon",       name: "아르마몬",          p: "upamon", cost: 50000 },
+    { id: "goldarmamon",   name: "황금아르마몬",      p: "armamon", cost: 250000 },
+    { id: "toumon",        name: "토우몬",            p: "goldarmamon", req: "r_toumon" },
+    { id: "lampmon",       name: "램프몬",            p: "toumon" },
 
     // ── 새싹몬 계열 (사진 9) ──
     { id: "egg9",          name: "알",                p: null },
