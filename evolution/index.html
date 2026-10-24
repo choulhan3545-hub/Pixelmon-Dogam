@@ -138,6 +138,37 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .note{margin:6px 0 0;color:var(--dim);font-size:13px;white-space:pre-wrap}
 .x{float:right;margin:-6px -6px 0 0}
 
+/* 계통 바로가기 */
+.lines{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.lines button{
+  background:var(--surface);border:2px solid var(--edge);color:var(--ink);
+  font:inherit;font-size:13px;font-weight:600;padding:4px 11px;cursor:pointer;white-space:nowrap;
+}
+.lines button:hover,.lines button:active{border-color:var(--cyan);color:var(--cyan)}
+.tip{display:none}
+
+/* ── 폰: 화면을 꽉 채운 "지도"처럼. 위·아래·왼쪽·오른쪽으로 밀어서 본다 ── */
+@media (max-width:700px){
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;height:100vh;height:100dvh;padding-bottom:0;overflow:hidden}
+  .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:0 8px}
+  .mast{padding:6px 0 2px;display:flex;align-items:center;gap:8px}
+  .eyebrow,.sub{display:none}
+  h1{font-size:20px;margin:0;white-space:nowrap}
+  .sitenav{margin-top:0;flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .sitenav::-webkit-scrollbar{display:none}
+  .sitenav a{padding:4px 8px;white-space:nowrap;font-size:12px}
+  .bar{position:static;margin:4px -8px 0;padding:6px 8px;flex-wrap:nowrap;border-bottom:0}
+  .bar input{flex:1 1 0;padding:6px 8px;font-size:13px}
+  .btn{padding:5px 11px}
+  .lines{flex-wrap:nowrap;overflow-x:auto;margin:0 -8px;padding:2px 8px 4px;scrollbar-width:none}
+  .lines::-webkit-scrollbar{display:none}
+  .lines button{flex:none}
+  .tip{display:block;font-size:11px;color:var(--dim);padding:0 0 4px}
+  .scroller{flex:1;min-height:0;padding:10px 4px 80px;overscroll-behavior:contain;border-top:2px solid var(--edge-soft)}
+  .legend{display:none}
+}
+
 .legend{margin-top:6px;padding:12px 14px;background:var(--surface);border:2px solid var(--edge-soft);color:var(--dim);font-size:12.5px;line-height:1.8}
 .legend b{color:var(--ink)}
 .legend img{height:18px;width:auto;vertical-align:middle}
@@ -169,6 +200,9 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   <span class="hint" id="cnt"></span>
 </div>
 
+<div class="lines" id="lines" aria-label="계통 바로가기"></div>
+<div class="tip">손가락으로 밀어서 이동 · 두 손가락으로 확대/축소 · 몬스터를 누르면 자세히</div>
+
 <div class="scroller"><div id="tree"></div></div>
 
 <div class="legend" id="legend"></div>
@@ -177,8 +211,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 
 <div class="shade" id="shade"><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
-<script src="data.js"></script>
-<script src="img.js"></script>
+<script src="data.js?v=20261024c"></script>
+<script src="img.js?v=20261024c"></script>
 <script>
 (function(){
   var NODES=EVO.NODES, ICONS=EVO.ICONS||{};
@@ -346,8 +380,8 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   function dist(t){var dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
   sc.addEventListener("touchstart",function(e){
     if(e.touches.length===2){
-      var r=sc.getBoundingClientRect(), cx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
-      pinch={d:dist(e.touches),z:z,cx:cx,px:(sc.scrollLeft+cx)/z};
+      var r=sc.getBoundingClientRect(), cx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left, cy=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top;
+      pinch={d:dist(e.touches),z:z,cx:cx,cy:cy,px:(sc.scrollLeft+cx)/z,py:(sc.scrollTop+cy)/z};
     }
   },{passive:true});
   sc.addEventListener("touchmove",function(e){
@@ -355,7 +389,32 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     e.preventDefault();
     setZ(pinch.z*dist(e.touches)/pinch.d);
     sc.scrollLeft=pinch.px*z-pinch.cx;
+    if(sc.scrollHeight>sc.clientHeight+2) sc.scrollTop=pinch.py*z-pinch.cy;
   },{passive:false});
+
+  // ── 계통 바로가기 (알이 여러 개라 줄기가 일곱 개 가까이 된다) ──
+  var lines=document.getElementById("lines");
+  NODES.filter(function(n){return !n.p;}).forEach(function(r){
+    var first=kids[r.id][0]; if(!first) return;
+    var b=el("button",null,esc(first.name)+" 계열");
+    b.type="button";
+    b.addEventListener("click",function(){ jumpTo(r.id,false); });
+    lines.appendChild(b);
+  });
+  // 줄기의 알(맨 왼쪽)이 화면 왼쪽 위에 오도록 옮긴다. 줄기 전체는 위아래로 길게 퍼져 있어서 알은 그 한가운데에 있다.
+  function jumpTo(id,smooth){
+    var nd=tree.querySelector('.node[data-id="'+id+'"]'); if(!nd) return;
+    var a=nd.getBoundingClientRect(), s=sc.getBoundingClientRect();
+    var vert=sc.scrollHeight>sc.clientHeight+2, beh=smooth?"smooth":"auto";
+    sc.scrollTo({left:Math.max(0,sc.scrollLeft+a.left-s.left-8),top:vert?Math.max(0,sc.scrollTop+a.top-s.top-90):sc.scrollTop,behavior:beh});
+    if(!vert){ var bar=document.querySelector(".bar").getBoundingClientRect(); window.scrollBy({top:a.top-bar.bottom-90,behavior:beh}); }
+  }
+  // 폰에서는 열자마자 첫 줄기의 알이 보이게 한다 (그림 크기가 정해진 뒤에 한 번)
+  if(innerWidth<700){
+    var firstRoot=NODES.filter(function(n){return !n.p;})[0];
+    var once=function(){ jumpTo(firstRoot.id,false); };
+    if(document.readyState==="complete") setTimeout(once,50); else window.addEventListener("load",function(){ setTimeout(once,50); });
+  }
   sc.addEventListener("touchend",function(e){ if(e.touches.length<2) pinch=null; });
 
   // ── 안내 ──
