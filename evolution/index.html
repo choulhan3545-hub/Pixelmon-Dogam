@@ -96,6 +96,13 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 .nm{margin-top:4px;font-size:13px;font-weight:600;line-height:1.25;word-break:keep-all;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px}
 .nm img{height:16px;width:auto}
 .assumed .nm::after{content:"?";color:var(--gold);font-family:var(--mono);font-size:11px}
+/* 여러 알에서 시작하는 계통은 위아래로 나란히 놓는다 */
+#tree>ul.roots>li{margin-bottom:56px;padding-bottom:0}
+#tree>ul.roots>li:last-child{margin-bottom:0}
+#tree>ul.roots{display:flex;flex-direction:column}
+.node.mat{border-style:dashed;border-color:var(--edge)}
+.tag{font-style:normal;font-size:10px;font-weight:600;color:var(--ground);background:var(--dim);padding:0 4px;line-height:1.5;margin-left:2px}
+.tag.f{background:#ff6b6b}
 /* 칸은 최소 너비만 정하고 큰 그림이면 그만큼 넓어진다. 이름은 최소 너비 안에서 줄바꿈 */
 .node{width:auto;min-width:118px;-webkit-tap-highlight-color:transparent}
 .nm{max-width:118px;margin-left:auto;margin-right:auto}
@@ -191,10 +198,11 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
   // 점 하나가 실제 화면 픽셀로 정수 칸이 되도록 맞춘다. 소수 배율이면 점 크기가 들쭉날쭉해진다.
   // (윈도우 배율 125% 같은 devicePixelRatio 까지 계산)
   var K=1, DOT=4;   // DOT = 기본 크기에서 점 하나의 화면 크기(px)
+  function isEgg(id){ return /^egg/.test(id); }
   function fit(im){
     var w=im.naturalWidth,h=im.naturalHeight; if(!w) return;
     var dpr=window.devicePixelRatio||1, d, zm=1;
-    if(im.dataset.id==="egg"){ im.style.width="28px"; im.style.height="auto"; return; }
+    if(isEgg(im.dataset.id)){ im.style.width="28px"; im.style.height="auto"; return; }
     if(im.dataset.box){
       // 팝업: 정해진 칸 안에 들어가는 가장 큰 정수 배율
       var box=parseFloat(im.dataset.box);
@@ -213,20 +221,21 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
 
   function build(n){
     var li=el("li", kids[n.id].length?"has":"");
-    var b=el("button","node"+(n.assumed?" assumed":""));
+    var b=el("button","node"+(n.assumed?" assumed":"")+(n.mat?" mat":"")+(n.fuse?" fuse":""));
     b.type="button"; b.dataset.id=n.id; b.setAttribute("aria-label",n.name+" 자세히");
     var top="";
-    if(n.cond) top+=pic("c_"+n.id,"조건");
+    if(src("c_"+n.id)) top+=pic("c_"+n.id,"조건");
+    if(src("c2_"+n.id)) top+=pic("c2_"+n.id,"조건");
     if(n.n) top+='<span class="cn">×'+n.n+'</span>';
     if(n.cost!=null) top+=pic("cost","")+'<span>'+num(n.cost)+'</span>';
     b.appendChild(el("div","top",top));
     var art=el("div","art",pic(n.id,n.name)); b.appendChild(art);
-    var nm=(n.box?pic("box","")+" ":"")+'<span>'+esc(n.name)+'</span>'+pic("a_"+n.id,"");
+    var nm=(n.box?pic("box","")+" ":"")+'<span>'+esc(n.name)+'</span>'+pic("a_"+n.id,"")+(n.mat?'<em class="tag">재료</em>':"")+(n.fuse?'<em class="tag f">합체</em>':"");
     b.appendChild(el("div","nm",nm));
     var im=art.querySelector("img");
     if(im){
       im.dataset.id=n.id;
-      if(n.id==="egg") im.classList.add("soft");
+      if(isEgg(n.id)) im.classList.add("soft");
       onLoad(im,function(){fit(im);});
     }
     li.appendChild(b);
@@ -237,10 +246,11 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     }
     return li;
   }
-  var root=el("ul");
+  var root=el("ul","roots");
   NODES.filter(function(n){return !n.p;}).forEach(function(n){root.appendChild(build(n));});
   tree.appendChild(root);
-  document.getElementById("cnt").textContent=NODES.length-1+"종";
+  var TOTAL=NODES.filter(function(n){return n.p;}).length;
+  document.getElementById("cnt").textContent=TOTAL+"종";
 
   // ── 경로 ──
   function pathOf(id){var a=[],n=byId[id];while(n){a.unshift(n);n=n.p?byId[n.p]:null;}return a;}
@@ -262,10 +272,12 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     mark(id);
     var chips="";
     if(n.cost!=null) chips+='<span class="chip">'+pic("cost","")+'진화 수치 <b>'+num(n.cost)+'</b></span>';
-    if(n.cond){
+    if(src("c_"+n.id)){
       var lab=ICONS["c_"+n.id];
       chips+='<span class="chip">'+pic("c_"+n.id,"")+(lab?esc(lab):"조건")+(n.n?' <b>×'+n.n+'</b>':"")+'</span>';
     }
+    if(src("c2_"+n.id)) chips+='<span class="chip">'+pic("c2_"+n.id,"")+'조건</span>';
+    if(n.mat) chips+='<span class="chip">합체 재료</span>';
     if(src("a_"+n.id)){
       var al=ICONS["a_"+n.id];
       chips+='<span class="chip">'+pic("a_"+n.id,"")+(al?esc(al):"속성")+'</span>';
@@ -277,14 +289,20 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
     h+='<h3>진화 경로</h3><div class="route">'+p.map(function(x,i){
       return (i?'<i>→</i>':"")+'<button type="button" data-go="'+x.id+'"'+(x.id===id?' class="cur"':"")+'>'+esc(x.name)+'</button>';
     }).join("")+'</div>';
-    if(n.assumed) h+='<p class="note" style="color:var(--gold)">사진이 잘려 있어 어느 몬스터에서 갈라지는지 확인되지 않았습니다. 코로몬에서 이어진 것으로 두었습니다.</p>';
-    var k=kids[id];
+    if(n.assumed) h+='<p class="note" style="color:var(--gold)">사진이 잘려 있어 어느 몬스터에서 갈라지는지 확인되지 않았습니다. '+esc(byId[n.p].name)+'에서 이어진 것으로 두었습니다.</p>';
+    if(n.fuse) h+='<h3>합체</h3><div class="route">'+n.fuse.map(function(f,i){
+      return (i?'<i>✕</i>':"")+'<button type="button" data-go="'+f+'">'+esc(byId[f].name)+'</button>';
+    }).join("")+'<i>→</i><button type="button" class="cur">'+esc(n.name)+'</button></div>';
+    var made=NODES.filter(function(m){return m.fuse&&m.fuse.indexOf(id)>=0&&m.id!==id;});
+    if(made.length) h+='<h3>합체에 쓰임</h3><div class="nextl">'+made.map(function(m){return '<button type="button" data-go="'+m.id+'">'+esc(m.name)+'</button>';}).join("")+'</div>';
+    var k=kids[id].filter(function(c){return !c.mat;});
     h+='<h3>다음 진화</h3>'+(k.length?'<div class="nextl">'+k.map(function(c){return '<button type="button" data-go="'+c.id+'">'+esc(c.name)+'</button>';}).join("")+'</div>':'<p class="note">없음 (마지막 단계)</p>');
-    if(n.req) h+='<h3>필요한 것</h3><div class="req">'+pic(n.req,"")+'</div>';
+    var rq=n.req||(src("r_"+n.id)?"r_"+n.id:null);
+    if(rq) h+='<h3>필요한 것</h3><div class="req">'+pic(rq,"")+'</div>';
     if(n.note) h+='<h3>메모</h3><p class="note">'+esc(n.note)+'</p>';
     card.innerHTML=h;
     var bi=card.querySelector(".bigart img");
-    if(bi){ bi.dataset.box="124"; bi.dataset.id=n.id; if(n.id==="egg") bi.classList.add("soft"); onLoad(bi,function(){fit(bi);}); }
+    if(bi){ bi.dataset.box="124"; bi.dataset.id=n.id; if(isEgg(n.id)) bi.classList.add("soft"); onLoad(bi,function(){fit(bi);}); }
     lastFocus=document.activeElement;
     shade.classList.add("on");
     card.querySelector("[data-close]").focus();
@@ -309,16 +327,16 @@ h1{font-family:"Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:4px 0
       b.classList.toggle("dim",!!v&&!hit);
       if(hit){c++; if(!first) first=b;}
     });
-    document.getElementById("cnt").textContent=v?(c+"종 찾음"):(NODES.length-1+"종");
+    document.getElementById("cnt").textContent=v?(c+"종 찾음"):(TOTAL+"종");
     if(first) first.scrollIntoView({block:"center",inline:"center",behavior:"smooth"});
   });
 
   // ── 크기 ──
-  // 폰은 처음에 작게 열어 가지가 한눈에 들어오게 한다. 단추나 두 손가락 벌리기로 키운다.
-  var z=innerWidth<700?.7:1, saved=null;
-  try{saved=parseFloat(localStorage.getItem("evoZoom"));}catch(e){}
+  // 폰은 처음에 0.5배로 열어 가지가 이어서 보이게 한다. 단추나 두 손가락 벌리기로 키운다.
+  var z=innerWidth<700?.5:1, saved=null;
+  try{saved=parseFloat(localStorage.getItem("evoZoom2"));}catch(e){}
   if(saved>0) z=saved;
-  function setZ(v){z=Math.round(Math.max(.4,Math.min(1.75,v))*100)/100;K=z;tree.style.setProperty("--k",z);fitAll();try{localStorage.setItem("evoZoom",z);}catch(e){}}
+  function setZ(v){z=Math.round(Math.max(.3,Math.min(1.75,v))*100)/100;K=z;tree.style.setProperty("--k",z);fitAll();try{localStorage.setItem("evoZoom2",z);}catch(e){}}
   setZ(z);
   document.getElementById("zo").onclick=function(){setZ(z-.15);};
   document.getElementById("zi").onclick=function(){setZ(z+.15);};
