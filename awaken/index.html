@@ -109,6 +109,8 @@ button{cursor:pointer}
 .orb[data-c="하양"]::after{background:#f6f6f6}
 .orb[data-c="반짝"]::after{background:conic-gradient(#ff5a5a,#ffd23f,#5fd068,#4f8cff,#b46bff,#ff5a5a)}
 .orb.pic{width:auto;height:auto;padding:6px;background:#fff !important;border:2px solid #fff;display:block}
+.orb.pic .cl{display:block;position:relative;overflow:hidden}
+.orb.pic .cl img{position:absolute}
 .orb.pic img{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 .orb.nopic{width:84px;height:84px;background:#fff !important;color:#8a8398;font-family:var(--mono);font-size:12px;line-height:1.35;text-align:center;border:2px solid #fff;padding-top:26px}
 .orb.nopic::after{right:-6px;bottom:-6px}
@@ -399,7 +401,16 @@ var EVO_ALIAS = {
   "알파몬 왕룡검 모드": "알파몬 왕룡검",
   "알카디몬": "알카디몬 궁극체"
 };
+// 진화 도감의 원본 그림에 옆 칸 테두리 · 가격 숫자 조각이 섞인 몬스터: 보여 줄 부분만 자른다 [x, y, 너비, 높이] (그림 칸 단위)
+var EVO_CROP = {
+  "청룡몬": [16, 22, 40, 45],
+  "피노키몬": [0, 6, 28, 23],
+  "오메가몬X": [0, 3, 35, 30]
+};
+// 원본 그림이 일부만 잘려 있어 쓸 수 없는 몬스터 (진화 도감에서 다시 잘라 오면 지운다)
+var EVO_BAD = { "페닉스몬": 1, "헤라클레스캅테리몬": 1 };
 function evoPic(name){
+  if(EVO_BAD[name]) return "";
   name = EVO_ALIAS[name] || name;
   var id = evoByName && evoByName[name];
   return id && window.IMG && window.IMG[id] || "";
@@ -432,16 +443,19 @@ function sizePic(){
   if(!im) return;
   function go(){ // 큰 그림은 배율을 낮춰 이름 칸을 누르거나 화면 밖으로 잘리지 않게 한다 (최대 150px)
     var dpr = window.devicePixelRatio || 1;
-    var base = Math.max(1, Math.min(3, Math.floor(150 / Math.max(im.naturalWidth, im.naturalHeight))));
-    var k = Math.max(1, Math.round(base * dpr)) / dpr;
-    im.style.width = im.naturalWidth * k + "px"; im.style.height = im.naturalHeight * k + "px" }
+    var cr = EVO_CROP[document.getElementById("pName").textContent] || [0, 0, im.naturalWidth, im.naturalHeight];
+    var base = Math.max(1, Math.min(3, Math.floor(150 / Math.max(cr[2], cr[3]))));
+    var k = Math.max(1, Math.round(base * dpr)) / dpr, cl = im.parentNode;
+    cl.style.width = cr[2] * k + "px"; cl.style.height = cr[3] * k + "px";
+    im.style.width = im.naturalWidth * k + "px"; im.style.height = im.naturalHeight * k + "px";
+    im.style.left = -cr[0] * k + "px"; im.style.top = -cr[1] * k + "px" }
   if(im.complete && im.naturalWidth) go(); else im.addEventListener("load", go);
 }
 function orbHtml(m){
   var src = evoPic(m.name);
   if(src){
     var dpr = window.devicePixelRatio || 1, k = Math.max(1, Math.round(3 * dpr)) / dpr;
-    return '<span class="orb pic" data-c="' + esc(m.color) + '" aria-hidden="true"><img alt="" src="' + src + '" data-k="' + k + '"></span>';
+    return '<span class="orb pic" data-c="' + esc(m.color) + '" aria-hidden="true"><span class="cl"><img alt="" src="' + src + '" data-k="' + k + '"></span></span>';
   }
   return '<span class="orb nopic" data-c="' + esc(m.color) + '" aria-hidden="true">그림<br>준비 중</span>';
 }
