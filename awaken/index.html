@@ -110,6 +110,8 @@ button{cursor:pointer}
 .orb[data-c="반짝"]::after{background:conic-gradient(#ff5a5a,#ffd23f,#5fd068,#4f8cff,#b46bff,#ff5a5a)}
 .orb.pic{width:auto;height:auto;padding:6px;background:#fff !important;border:2px solid #fff;display:block}
 .orb.pic img{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.orb.nopic{width:84px;height:84px;background:#fff !important;color:#8a8398;font-family:var(--mono);font-size:12px;line-height:1.35;text-align:center;border:2px solid #fff;padding-top:26px}
+.orb.nopic::after{right:-6px;bottom:-6px}
 .orb.pic::after{right:-6px;bottom:-6px}
 .p-name{flex:1;min-width:0}
 .p-name .egg{font-size:13px;color:var(--dim)}
@@ -385,7 +387,19 @@ function yn(v){ return v ? "있음" : "없음" }
    진화 도감(../evolution/)에 이름이 같은 몬스터가 등록되면 그 그림을 자동으로 쓴다.
    진화 도감의 data.js(이름 · id)와 img.js(id -> 그림)를 팝업을 처음 열 때 불러온다. */
 var evoByName = null, evoState = 0;   // 0 안 불러옴 · 1 불러오는 중 · 2 끝
+// 이름 표기가 진화 도감과 다른 몬스터 (각성 쪽 이름 -> 진화 도감 쪽 이름)
+var EVO_ALIAS = {
+  "황제드라몬(드래곤모드)": "황제드라몬",
+  "황제드라몬(파이터모드)": "황제드라몬 파이터모드",
+  "루체몬(폴다운모드)": "루체몬 폴다운",
+  "듀크몬(크림존모드)": "듀크몬 크림즌",
+  "베르제브몬(블래스터모드)": "베르제브몬 블래스터",
+  "샤인그레이몬 버스트 모드": "샤인그레이몬 Burst",
+  "오메가몬 즈왈트": "오메가몬 스왈트",
+  "알파몬 왕룡검 모드": "알파몬 왕룡검"
+};
 function evoPic(name){
+  name = EVO_ALIAS[name] || name;
   var id = evoByName && evoByName[name];
   return id && window.IMG && window.IMG[id] || "";
 }
@@ -415,7 +429,11 @@ function refreshOrb(){
 function sizePic(){
   var im = document.querySelector("#panel .orb.pic img");
   if(!im) return;
-  function go(){ var k = +im.getAttribute("data-k"); im.style.width = im.naturalWidth * k + "px"; im.style.height = im.naturalHeight * k + "px" }
+  function go(){ // 큰 그림은 배율을 낮춰 이름 칸을 누르거나 화면 밖으로 잘리지 않게 한다 (최대 150px)
+    var dpr = window.devicePixelRatio || 1;
+    var base = Math.max(1, Math.min(3, Math.floor(150 / Math.max(im.naturalWidth, im.naturalHeight))));
+    var k = Math.max(1, Math.round(base * dpr)) / dpr;
+    im.style.width = im.naturalWidth * k + "px"; im.style.height = im.naturalHeight * k + "px" }
   if(im.complete && im.naturalWidth) go(); else im.addEventListener("load", go);
 }
 function orbHtml(m){
@@ -424,7 +442,7 @@ function orbHtml(m){
     var dpr = window.devicePixelRatio || 1, k = Math.max(1, Math.round(3 * dpr)) / dpr;
     return '<span class="orb pic" data-c="' + esc(m.color) + '" aria-hidden="true"><img alt="" src="' + src + '" data-k="' + k + '"></span>';
   }
-  return '<span class="orb" data-c="' + esc(m.color) + '" style="background:' + EL[m.el] + '" aria-hidden="true">' + esc(m.name.charAt(0)) + '</span>';
+  return '<span class="orb nopic" data-c="' + esc(m.color) + '" aria-hidden="true">그림<br>준비 중</span>';
 }
 function panelHtml(m, pos){
   var tags = '<span class="tag el" style="background:' + EL[m.el] + '">' + esc(m.el) + ' 속성</span>';
